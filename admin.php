@@ -1,21 +1,21 @@
 <?php
 // Inicia a sessão de forma segura
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+  session_start();
 }
 
 // Verificação de segurança
 if (!isset($_SESSION['is_admin'])) {
-    session_unset();
-    session_destroy();
-    header('Location: login.php?error=acesso_negado');
-    exit();
+  session_unset();
+  session_destroy();
+  header('Location: login.php?error=acesso_negado');
+  exit();
 }
 
 // Remove qualquer vestígio de sessão de usuário comum
 if (isset($_SESSION['user_id'])) {
-    unset($_SESSION['user_id']);
-    unset($_SESSION['user_name']);
+  unset($_SESSION['user_id']);
+  unset($_SESSION['user_name']);
 }
 
 // Conexão com o banco de dados (se necessário)
@@ -26,6 +26,7 @@ $page_title = "Painel Administrativo";
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -44,20 +45,21 @@ $page_title = "Painel Administrativo";
   <!-- Icone -->
   <link rel="icon" href="img/icone.png" type="image/png">
 </head>
+
 <body class="admin-body">
 
   <!-- NAVBAR ADMIN -->
   <nav class="navbar admin-nav">
     <div class="container">
-       <div class="nav-left">
+      <div class="nav-left">
         <a href="index.php">
-          <img src="img/logo.png" alt="Logo da loja" class="logo"/>
+          <img src="img/logo.png" alt="Logo da loja" class="logo" />
         </a>
-      <div class="nav-right">
-        <span class="admin-welcome"><b>Olá, Admin</b></span>
-        <a href="logout.php" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        <div class="nav-right">
+          <span class="admin-welcome"><b>Olá, Admin</b></span>
+          <a href="logout.php" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
       </div>
-    </div>
   </nav>
 
   <!-- CATEGORIAS -->
@@ -65,8 +67,8 @@ $page_title = "Painel Administrativo";
     <div class="container">
       <div class="category-tabs">
         <button class="category-tab active" data-category="clientes">
-        <i class="fas fa-users"></i> Clientes
-      </button>
+          <i class="fas fa-users"></i> Clientes
+        </button>
         <button class="category-tab" data-category="pedidos">
           <i class="fas fa-shopping-bag"></i> Pedidos
         </button>
@@ -86,128 +88,128 @@ $page_title = "Painel Administrativo";
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="admin-main">
     <div class="container">
-     <!-- Seção Clientes -->
-<section class="admin-section active" id="clientes-section">
-  <h1 class="section-title"><i class="fas fa-users"></i> Gerenciamento de Clientes</h1>
-  
-  <?php
-  // Processa mensagens de feedback
-  if (isset($_SESSION['message'])): ?>
-    <div class="message"><?= $_SESSION['message'] ?></div>
-    <?php unset($_SESSION['message']); ?>
-  <?php endif; ?>
-  
-  <div class="search-filter">
-    <input type="text" id="client-search" placeholder="Buscar por nome, e-mail ou CPF..." class="admin-search">
-    <select class="admin-filter" id="client-status-filter">
-      <option value="all">Todos os status</option>
-      <option value="ativo">Ativos</option>
-      <option value="desativado">Desativados</option>
-      <option value="admin">Administradores</option>
-    </select>
-  </div>
-  
-  <div class="table-responsive">
-    <table class="clientes-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>E-mail</th>
-          <th>CPF</th>
-          <th>Data Nasc.</th>
-          <th>Tipo</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
+      <!-- Seção Clientes -->
+      <section class="admin-section active" id="clientes-section">
+        <h1 class="section-title"><i class="fas fa-users"></i> Gerenciamento de Clientes</h1>
+
         <?php
-        // Busca os clientes no banco de dados
-        try {
-          $query = "SELECT id, nomeUser, email, cpf, dataNascimento, tipoUser, statusATV 
+        // Processa mensagens de feedback
+        if (isset($_SESSION['message'])): ?>
+          <div class="message"><?= $_SESSION['message'] ?></div>
+          <?php unset($_SESSION['message']); ?>
+        <?php endif; ?>
+
+        <div class="search-filter">
+          <input type="text" id="client-search" placeholder="Buscar por nome, e-mail ou CPF..." class="admin-search">
+          <select class="admin-filter" id="client-status-filter">
+            <option value="all">Todos os status</option>
+            <option value="ativo">Ativos</option>
+            <option value="desativado">Desativados</option>
+            <option value="admin">Administradores</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="clientes-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>CPF</th>
+                <th>Data Nasc.</th>
+                <th>Tipo</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+              // Busca os clientes no banco de dados
+              try {
+                $query = "SELECT id, nomeUser, email, cpf, dataNascimento, tipoUser, statusATV 
                     FROM tb_usuario 
                     ORDER BY id ASC";
-          $stmt = $pdo->query($query);
-          
-          while ($cliente = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
-            <tr>
-              <td data-label="ID"><?= htmlspecialchars($cliente['id']) ?></td>
-              <td data-label="Nome"><?= htmlspecialchars($cliente['nomeUser']) ?></td>
-              <td data-label="E-mail"><?= htmlspecialchars($cliente['email']) ?></td>
-              <td data-label="CPF"><?= htmlspecialchars($cliente['cpf']) ?></td>
-              <td data-label="Data Nasc."><?= $cliente['dataNascimento'] ? date('d/m/Y', strtotime($cliente['dataNascimento'])) : '--' ?></td>
-              <td data-label="Tipo"><?= ucfirst(htmlspecialchars($cliente['tipoUser'])) ?></td>
-              <td data-label="Status">
-                <span class="status-badge <?= htmlspecialchars($cliente['statusATV']) ?> <?= $cliente['tipoUser'] === 'admin' ? 'admin' : '' ?>">
-                  <?= ucfirst(htmlspecialchars($cliente['statusATV'])) ?>
-                </span>
-              </td>
-              <td data-label="Ações" class="actions">
-                <button class="btn-action btn-view view-btn" data-id="<?= $cliente['id'] ?>">
-                  <i class="fas fa-eye"></i>
-                </button>
-                
-                <?php if ($cliente['tipoUser'] !== 'admin'): ?>
-                  <form method="post" style="display:inline;">
-                    <input type="hidden" name="action" value="promote">
-                    <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
-                    <button type="submit" class="btn-action btn-promote" 
+                $stmt = $pdo->query($query);
+
+                while ($cliente = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+                  <tr>
+                    <td data-label="ID"><?= htmlspecialchars($cliente['id']) ?></td>
+                    <td data-label="Nome"><?= htmlspecialchars($cliente['nomeUser']) ?></td>
+                    <td data-label="E-mail"><?= htmlspecialchars($cliente['email']) ?></td>
+                    <td data-label="CPF"><?= htmlspecialchars($cliente['cpf']) ?></td>
+                    <td data-label="Data Nasc."><?= $cliente['dataNascimento'] ? date('d/m/Y', strtotime($cliente['dataNascimento'])) : '--' ?></td>
+                    <td data-label="Tipo"><?= ucfirst(htmlspecialchars($cliente['tipoUser'])) ?></td>
+                    <td data-label="Status">
+                      <span class="status-badge <?= htmlspecialchars($cliente['statusATV']) ?> <?= $cliente['tipoUser'] === 'admin' ? 'admin' : '' ?>">
+                        <?= ucfirst(htmlspecialchars($cliente['statusATV'])) ?>
+                      </span>
+                    </td>
+                    <td data-label="Ações" class="actions">
+                      <button class="btn-action btn-view view-btn" data-id="<?= $cliente['id'] ?>">
+                        <i class="fas fa-eye"></i>
+                      </button>
+
+                      <?php if ($cliente['tipoUser'] !== 'admin'): ?>
+                        <form method="post" style="display:inline;">
+                          <input type="hidden" name="action" value="promote">
+                          <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
+                          <button type="submit" class="btn-action btn-promote"
                             onclick="return confirm('Tem certeza que deseja tornar este usuário administrador?')">
-                      <i class="fas fa-user-shield"></i>
-                    </button>
-                  </form>
-                <?php else: ?>
-                  <form method="post" style="display:inline;">
-                    <input type="hidden" name="action" value="demote">
-                    <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
-                    <button type="submit" class="btn-action btn-demote" 
+                            <i class="fas fa-user-shield"></i>
+                          </button>
+                        </form>
+                      <?php else: ?>
+                        <form method="post" style="display:inline;">
+                          <input type="hidden" name="action" value="demote">
+                          <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
+                          <button type="submit" class="btn-action btn-demote"
                             onclick="return confirm('Remover privilégios de admin deste usuário?')">
-                      <i class="fas fa-user-minus"></i>
-                    </button>
-                  </form>
-                <?php endif; ?>
-                
-                <form method="post" style="display:inline;">
-                  <input type="hidden" name="action" value="toggle_status">
-                  <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
-                  <button type="submit" class="btn-action <?= $cliente['statusATV'] == 'ativo' ? 'btn-disable' : 'btn-enable' ?>">
-                    <?php if ($cliente['statusATV'] == 'ativo'): ?>
-                      <i class="fas fa-ban"></i>
-                    <?php else: ?>
-                      <i class="fas fa-check"></i>
-                    <?php endif; ?>
-                  </button>
-                </form>
-                
-                <form method="post" style="display:inline;">
-                  <input type="hidden" name="action" value="delete">
-                  <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
-                  <button type="submit" class="btn-action btn-delete" 
+                            <i class="fas fa-user-minus"></i>
+                          </button>
+                        </form>
+                      <?php endif; ?>
+
+                      <form method="post" style="display:inline;">
+                        <input type="hidden" name="action" value="toggle_status">
+                        <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
+                        <button type="submit" class="btn-action <?= $cliente['statusATV'] == 'ativo' ? 'btn-disable' : 'btn-enable' ?>">
+                          <?php if ($cliente['statusATV'] == 'ativo'): ?>
+                            <i class="fas fa-ban"></i>
+                          <?php else: ?>
+                            <i class="fas fa-check"></i>
+                          <?php endif; ?>
+                        </button>
+                      </form>
+
+                      <form method="post" style="display:inline;">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="user_id" value="<?= $cliente['id'] ?>">
+                        <button type="submit" class="btn-action btn-delete"
                           onclick="return confirm('Tem certeza que deseja excluir permanentemente este usuário?')">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </form>
-              </td>
-            </tr>
-          <?php endwhile; ?>
-        <?php } catch (PDOException $e) { ?>
-          <tr>
-            <td colspan="8" style="color:red;text-align:center;">
-              Erro ao carregar clientes: <?= $e->getMessage() ?>
-            </td>
-          </tr>
-        <?php } ?>
-      </tbody>
-    </table>
-  </div>
-</section>
-     
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              <?php } catch (PDOException $e) { ?>
+                <tr>
+                  <td colspan="8" style="color:red;text-align:center;">
+                    Erro ao carregar clientes: <?= $e->getMessage() ?>
+                  </td>
+                </tr>
+              <?php } ?>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <!-- Seção Pedidos -->
       <section class="admin-section" id="pedidos-section">
         <h1 class="section-title"><i class="fas fa-shopping-bag"></i> Gerenciamento de Pedidos</h1>
-        
+
         <div class="section-actions">
           <div class="search-filter">
             <input type="text" placeholder="Buscar pedido..." class="admin-search">
@@ -221,7 +223,7 @@ $page_title = "Painel Administrativo";
             </select>
           </div>
         </div>
-        
+
         <div class="pedidos-list">
           <div class="pedido-card">
             <div class="pedido-header">
@@ -250,7 +252,7 @@ $page_title = "Painel Administrativo";
               </div>
             </div>
           </div>
-          
+
           <div class="pedido-card">
             <div class="pedido-header">
               <span class="pedido-id">#ORD-2023-002</span>
@@ -281,62 +283,89 @@ $page_title = "Painel Administrativo";
       <!-- Seção Conteúdo do Site -->
       <section class="admin-section" id="conteudo-section">
         <h1 class="section-title"><i class="fas fa-paint-brush"></i> Gerenciamento de Conteúdo</h1>
-        
+
         <div class="content-tabs">
           <button class="content-tab active" data-content="carrossel">Carrossel</button>
           <button class="content-tab" data-content="lancamentos">Lançamentos</button>
           <button class="content-tab" data-content="colecao">Coleção X</button>
           <button class="content-tab" data-content="novidades">Novidades</button>
         </div>
-        
+
         <!-- Subseção Carrossel -->
-        <div class="content-panel active" id="carrossel-panel">
-          <h2><i class="fas fa-images"></i> Gerenciar Carrossel</h2>
-          
-          <div class="current-items">
-            <h3>Imagens Atuais</h3>
-            <div class="items-grid">
-              <div class="item-card">
-                <img src="img/produto1.png" alt="Imagem do carrossel 1">
-                <div class="item-actions">
-                  <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-                  <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
-                </div>
-              </div>
-              <div class="item-card">
-                <img src="img/produto2.png" alt="Imagem do carrossel 2">
-                <div class="item-actions">
-                  <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-                  <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
-                </div>
-              </div>
-            </div>
+<div class="content-panel active" id="carrossel-panel">
+  <h2><i class="fas fa-images"></i> Gerenciar Carrossel</h2>
+  
+  <div class="current-items">
+    <h3>Imagens Ativas no Site</h3>
+    <div class="items-grid" id="carrossel-grid">
+      <?php
+      require_once 'conexao.php';
+      // Buscar apenas imagens ativas ou principais
+      $imagens = $pdo->query("SELECT * FROM tb_imagem WHERE idProduto IS NULL AND statusImagem IN ('ativa', 'principal') ORDER BY statusImagem DESC");
+      
+      foreach ($imagens as $img) {
+        echo '
+        <div class="item-card" data-id="'.$img['idImagem'].'">
+          <img src="uploads/carrossel/'.$img['nomeImagem'].'" alt="Imagem do carrossel">
+          <div class="item-info">
+            <span class="status-badge '.$img['statusImagem'].'">'.$img['statusImagem'].'</span>
+            '.(!empty($img['idProduto']) ? '<span class="product-link">Vinculado a produto</span>' : '').'
           </div>
-          
-          <div class="add-item-form">
-            <h3>Adicionar Nova Imagem</h3>
-            <form>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="carrossel-image">Imagem:</label>
-                  <input type="file" id="carrossel-image" accept="image/*">
-                </div>
-                <div class="form-group">
-                  <label for="carrossel-link">Link (opcional):</label>
-                  <input type="text" id="carrossel-link" placeholder="URL para redirecionamento">
-                </div>
-              </div>
-              <div class="form-buttons">
-                <button type="submit" class="btn-submit">Adicionar Imagem</button>
-              </div>
-            </form>
+          <div class="item-actions">
+            <button class="btn-action editar" data-id="'.$img['idImagem'].'">
+              <i class="fas fa-edit"></i> Editar
+            </button>
+            <button class="btn-action remover" data-id="'.$img['idImagem'].'">
+              <i class="fas fa-trash"></i> Remover
+            </button>
           </div>
+        </div>';
+      }
+      ?>
+    </div>
+  </div>
+
+  <div class="add-item-form">
+    <h3>Adicionar Nova Imagem ao Carrossel</h3>
+    <form id="form-carrossel" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="carrossel-image">Imagem:</label>
+          <input type="file" id="carrossel-image" name="imagem" accept="image/*" required>
+          <small>Tamanho recomendado: 1200x600px</small>
         </div>
-        
+        <div class="form-group">
+          <label for="carrossel-status">Status:</label>
+          <select id="carrossel-status" name="status">
+            <option value="inativa">Inativa (não aparece no site)</option>
+            <option value="ativa">Ativa</option>
+            <option value="principal">Principal (destaque)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="carrossel-link">Link para produto (opcional):</label>
+        <select id="carrossel-link" name="idProduto">
+          <option value="">Nenhum</option>
+          <?php
+          $produtos = $pdo->query("SELECT id, nomeItem FROM tb_produto");
+          foreach ($produtos as $prod) {
+            echo '<option value="'.$prod['id'].'">'.$prod['nomeItem'].'</option>';
+          }
+          ?>
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button type="submit" class="btn-submit">Adicionar Imagem</button>
+      </div>
+    </form>
+  </div>
+</div>
+
         <!-- Subseção Lançamentos -->
         <div class="content-panel" id="lancamentos-panel">
           <h2><i class="fas fa-star"></i> Gerenciar Lançamentos</h2>
-          
+
           <div class="current-items">
             <h3>Produtos em Destaque</h3>
             <div class="items-grid">
@@ -353,7 +382,7 @@ $page_title = "Painel Administrativo";
               </div>
             </div>
           </div>
-          
+
           <div class="add-item-form">
             <h3>Adicionar Produto</h3>
             <form>
@@ -374,49 +403,49 @@ $page_title = "Painel Administrativo";
         </div>
 
         <!-- Subseção Coleção X -->
-<div class="content-panel" id="colecao-panel">
-  <h2><i class="fas fa-star"></i> Gerenciar Coleção X</h2>
-  
-  <div class="current-items">
-    <h3>Produtos em Destaque</h3>
-    <div class="items-grid">
-      <div class="item-card">
-        <img src="img/produto10.png" alt="Camiseta Oversized">
-        <div class="item-info">
-          <h4>Camiseta Oversized</h4>
-          <p>R$ 129,90</p>
+        <div class="content-panel" id="colecao-panel">
+          <h2><i class="fas fa-star"></i> Gerenciar Coleção X</h2>
+
+          <div class="current-items">
+            <h3>Produtos em Destaque</h3>
+            <div class="items-grid">
+              <div class="item-card">
+                <img src="img/produto10.png" alt="Camiseta Oversized">
+                <div class="item-info">
+                  <h4>Camiseta Oversized</h4>
+                  <p>R$ 129,90</p>
+                </div>
+                <div class="item-actions">
+                  <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
+                  <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="add-item-form">
+            <h3>Adicionar Produto</h3>
+            <form>
+              <div class="form-group">
+                <label for="colecao-produto">Selecionar Produto:</label>
+                <select id="colecao-produto">
+                  <option>Selecione um produto</option>
+                  <option>Camiseta Premium</option>
+                  <option>Calça Jogger</option>
+                  <option>Boné Snapback</option>
+                </select>
+              </div>
+              <div class="form-buttons">
+                <button type="submit" class="btn-submit">Adicionar à Seção</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="item-actions">
-          <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-          <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="add-item-form">
-    <h3>Adicionar Produto</h3>
-    <form>
-      <div class="form-group">
-        <label for="colecao-produto">Selecionar Produto:</label>
-        <select id="colecao-produto">
-          <option>Selecione um produto</option>
-          <option>Camiseta Premium</option>
-          <option>Calça Jogger</option>
-          <option>Boné Snapback</option>
-        </select>
-      </div>
-      <div class="form-buttons">
-        <button type="submit" class="btn-submit">Adicionar à Seção</button>
-      </div>
-    </form>
-  </div>
-</div>
-        
+
         <!-- Subseção Novidades -->
         <div class="content-panel" id="novidades-panel">
           <h2><i class="fas fa-newspaper"></i> Gerenciar Novidades</h2>
-          
+
           <div class="current-items">
             <h3>Postagens Atuais</h3>
             <div class="items-grid">
@@ -433,7 +462,7 @@ $page_title = "Painel Administrativo";
               </div>
             </div>
           </div>
-          
+
           <div class="add-item-form">
             <h3>Adicionar Nova Postagem</h3>
             <form>
@@ -466,7 +495,7 @@ $page_title = "Painel Administrativo";
       <!-- Seção Produtos -->
       <section class="admin-section" id="produtos-section">
         <h1 class="section-title"><i class="fas fa-tshirt"></i> Gerenciamento de Produtos</h1>
-        
+
         <div class="section-actions">
           <button class="btn-action add-produto-btn"><i class="fas fa-plus"></i> Adicionar Novo Produto</button>
           <div class="search-filter">
@@ -479,7 +508,7 @@ $page_title = "Painel Administrativo";
             </select>
           </div>
         </div>
-        
+
         <div class="produtos-grid">
           <div class="produto-card">
             <img src="img/produto10.png" alt="Camiseta Oversized">
@@ -500,7 +529,7 @@ $page_title = "Painel Administrativo";
               <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
             </div>
           </div>
-          
+
           <div class="produto-card">
             <img src="img/produto11.png" alt="Calça Jogger">
             <div class="produto-info">
@@ -521,7 +550,7 @@ $page_title = "Painel Administrativo";
             </div>
           </div>
         </div>
-        
+
         <!-- Formulário para adicionar novo produto -->
         <div class="add-produto-form" style="display: none;">
           <h2><i class="fas fa-plus-circle"></i> Adicionar Novo Produto</h2>
@@ -541,7 +570,7 @@ $page_title = "Painel Administrativo";
                 </select>
               </div>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="produto-preco">Preço (R$):</label>
@@ -552,17 +581,17 @@ $page_title = "Painel Administrativo";
                 <input type="number" id="produto-estoque" min="0" required>
               </div>
             </div>
-            
+
             <div class="form-group">
               <label for="produto-descricao">Descrição:</label>
               <textarea id="produto-descricao" rows="3"></textarea>
             </div>
-            
+
             <div class="form-group">
               <label for="produto-imagem">Imagem do Produto:</label>
               <input type="file" id="produto-imagem" accept="image/*" required>
             </div>
-            
+
             <div class="form-buttons">
               <button type="submit" class="btn-submit">Salvar Produto</button>
               <button type="button" class="btn-cancel">Cancelar</button>
@@ -574,11 +603,11 @@ $page_title = "Painel Administrativo";
       <!-- Seção Cupons -->
       <section class="admin-section" id="cupons-section">
         <h1 class="section-title"><i class="fas fa-tag"></i> Gerenciamento de Cupons</h1>
-        
+
         <div class="section-actions">
           <button class="btn-action add-cupom-btn"><i class="fas fa-plus"></i> Criar Novo Cupom</button>
         </div>
-        
+
         <div class="cupons-list">
           <div class="cupom-card">
             <div class="cupom-header">
@@ -595,7 +624,7 @@ $page_title = "Painel Administrativo";
               <button class="btn-action desativar"><i class="fas fa-ban"></i> Desativar</button>
             </div>
           </div>
-          
+
           <div class="cupom-card">
             <div class="cupom-header">
               <span class="cupom-codigo">VERAO10</span>
@@ -612,7 +641,7 @@ $page_title = "Painel Administrativo";
             </div>
           </div>
         </div>
-        
+
         <!-- Formulário para adicionar novo cupom -->
         <div class="add-cupom-form" style="display: none;">
           <h2><i class="fas fa-tag"></i> Criar Novo Cupom</h2>
@@ -627,7 +656,7 @@ $page_title = "Painel Administrativo";
                 <input type="number" id="cupom-desconto" min="1" max="100" required>
               </div>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="cupom-validade">Data de Validade:</label>
@@ -638,12 +667,12 @@ $page_title = "Painel Administrativo";
                 <input type="number" id="cupom-usos" min="1" placeholder="Ilimitado se vazio">
               </div>
             </div>
-            
+
             <div class="form-group">
               <label for="cupom-descricao">Descrição (opcional):</label>
               <textarea id="cupom-descricao" rows="2" placeholder="Ex: Cupom de Natal 2023"></textarea>
             </div>
-            
+
             <div class="form-buttons">
               <button type="submit" class="btn-submit">Criar Cupom</button>
               <button type="button" class="btn-cancel">Cancelar</button>
@@ -654,7 +683,7 @@ $page_title = "Painel Administrativo";
     </div>
   </main>
 
- 
+
 
   <!-- FOOTER -->
   <footer class="footer admin-footer">
@@ -700,4 +729,5 @@ $page_title = "Painel Administrativo";
   <script src="auth-check.js"></script>
   <script src="js/admin.js"></script>
 </body>
+
 </html>

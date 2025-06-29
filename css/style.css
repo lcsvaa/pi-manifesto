@@ -261,7 +261,7 @@
     align-items: center;
     justify-content: center;
     transition: background-color var(--transition-speed) ease;
-  }
+  }s
 
   .carousel-controls button:hover {
     background-color: rgba(0, 0, 0, 0.8);

@@ -29,32 +29,39 @@
   <?php include_once "navbar.php" ?>
 
   <!-- CARROSSEL -->
-  <section class="carousel-section">
-    <div class="carousel-wrapper">
-      <div class="carousel" id="carousel">
-        <div class="carousel-item">
-          <img src="img/produto1.png" alt="Produto 1" />
-          <button class="buy-now">Compre Agora</button>
-        </div>
-        <div class="carousel-item">
-          <img src="img/produto2.png" alt="Produto 2" />
-          <button class="buy-now">Compre Agora</button>
-        </div>
-        <div class="carousel-item">
-          <img src="img/produto3.png" alt="Produto 3" />
-          <button class="buy-now">Compre Agora</button>
-        </div>
-        <div class="carousel-item">
-          <img src="img/produto4.png" alt="Produto 4" />
-          <button class="buy-now">Compre Agora</button>
-        </div>
-      </div>
-      <div class="carousel-controls">
-        <button id="prev-button" aria-label="Slide anterior"><i class="fa fa-chevron-left"></i></button>
-        <button id="next-button" aria-label="Próximo slide"><i class="fa fa-chevron-right"></i></button>
-      </div>
+<section class="carousel-section">
+  <div class="carousel-wrapper">
+    <div class="carousel" id="carousel">
+      <?php
+      require_once 'conexao.php';
+      // Buscar imagens ativas ou principais, sem produto vinculado (ou com)
+      $imagens = $pdo->query("
+        SELECT i.*, p.nomeItem as produtoNome 
+        FROM tb_imagem i
+        LEFT JOIN tb_produto p ON i.idProduto = p.id
+        WHERE i.statusImagem IN ('ativa', 'principal') 
+        ORDER BY i.statusImagem DESC
+      ");
+      
+      foreach ($imagens as $img) {
+        echo '<div class="carousel-item">';
+        echo '<img src="uploads/carrossel/'.$img['nomeImagem'].'" alt="'.htmlspecialchars($img['produtoNome'] ?? 'Imagem do carrossel').'" />';
+        
+        if ($img['idProduto']) {
+          echo '<button class="buy-now" data-id="'.$img['idProduto'].'">Compre '.htmlspecialchars($img['produtoNome']).'</button>';
+        } else {
+          echo '<button class="buy-now">Ver Mais</button>';
+        }
+        echo '</div>';
+      }
+      ?>
     </div>
-  </section>
+    <div class="carousel-controls">
+      <button id="prev-button" aria-label="Slide anterior"><i class="fa fa-chevron-left"></i></button>
+      <button id="next-button" aria-label="Próximo slide"><i class="fa fa-chevron-right"></i></button>
+    </div>
+  </div>
+</section>
 
   <!-- LANÇAMENTOS -->
   <section class="lancamentos">
@@ -115,6 +122,10 @@
 
   <!-- JavaScript -->
   <script src="js/script.js"></script>
+  <script> 
+    
+
+  </script>
 </body>
 
 </html>

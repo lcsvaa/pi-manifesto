@@ -1,23 +1,3 @@
-// Menu Mobile
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.getElementById('hamburger-menu');
-    const mobileMenu = document.getElementById('mobile-menu');
-    
-    hamburger.addEventListener('click', function() {
-        this.classList.toggle('active');
-        mobileMenu.classList.toggle('active');
-    });
-    
-    // Fechar menu ao clicar em um link
-    const mobileLinks = mobileMenu.querySelectorAll('a');
-    mobileLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            mobileMenu.classList.remove('active');
-        });
-    });
-});
-
 document.addEventListener('DOMContentLoaded', function() {
   // Menu Hamburguer
   const hamburger = document.getElementById('hamburger-menu');
@@ -41,73 +21,134 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Carrossel
+  // Carrossel - Atualização completa
   const prevButton = document.getElementById('prev-button');
   const nextButton = document.getElementById('next-button');
   const carousel = document.getElementById('carousel');
-  const carouselItems = document.querySelectorAll('.carousel-item');
   let currentIndex = 0;
-
-  function updateCarousel() {
-    const carouselWidth = carousel.offsetWidth;
-    carousel.style.transform = `translateX(-${carouselWidth * currentIndex}px)`;
-  }
-
-  function moveToPrevSlide() {
-    currentIndex = (currentIndex === 0) ? carouselItems.length - 1 : currentIndex - 1;
-    updateCarousel();
-  }
-
-  function moveToNextSlide() {
-    currentIndex = (currentIndex === carouselItems.length - 1) ? 0 : currentIndex + 1;
-    updateCarousel();
-  }
-
-  prevButton.addEventListener('click', moveToPrevSlide);
-  nextButton.addEventListener('click', moveToNextSlide);
-
-  // Redimensionamento
-  window.addEventListener('resize', updateCarousel);
+  let intervalId;
   
-  // Inicializar
-  updateCarousel();
+  // Função para mover o carrossel - ATUALIZADA
+  function moveCarousel() {
+    const items = document.querySelectorAll('.carousel-item');
+    if (items.length === 0) return;
+    
+    // Garante que o índice esteja dentro dos limites
+    if (currentIndex >= items.length) currentIndex = 0;
+    if (currentIndex < 0) currentIndex = items.length - 1;
+    
+    // Calcula o deslocamento baseado na largura do item
+    const itemWidth = items[0].offsetWidth;
+    const offset = -currentIndex * itemWidth;
+    
+    // Aplica a transformação
+    carousel.style.transform = `translateX(${offset}px)`;
+    carousel.style.transition = 'transform 0.5s ease';
+  }
+  
+  // Event listeners para os botões
+  if (prevButton && nextButton) {
+    prevButton.addEventListener('click', function() {
+      currentIndex--;
+      moveCarousel();
+      resetInterval();
+    });
+    
+    nextButton.addEventListener('click', function() {
+      currentIndex++;
+      moveCarousel();
+      resetInterval();
+    });
+  }
+  
+  // Configura autoplay
+  function startInterval() {
+    intervalId = setInterval(function() {
+      currentIndex++;
+      moveCarousel();
+    }, 5000); // Muda a cada 5 segundos
+  }
+  
+  function resetInterval() {
+    clearInterval(intervalId);
+    startInterval();
+  }
+  
+  // Inicia o carrossel
+  moveCarousel();
+  startInterval();
+  
+  // Pausa o carrossel quando o mouse está sobre ele
+  carousel.addEventListener('mouseenter', function() {
+    clearInterval(intervalId);
+  });
+  
+  carousel.addEventListener('mouseleave', function() {
+    startInterval();
+  });
+  
+  // Adiciona suporte para touch (mobile)
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  carousel.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    clearInterval(intervalId);
+  }, {passive: true});
+  
+  carousel.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+    startInterval();
+  }, {passive: true});
+  
+  function handleSwipe() {
+    const difference = touchStartX - touchEndX;
+    if (difference > 50) { // Swipe para a esquerda
+      currentIndex++;
+      moveCarousel();
+    } else if (difference < -50) { // Swipe para a direita
+      currentIndex--;
+      moveCarousel();
+    }
+  }
 });
 
-    // Função para adicionar produto ao carrinho
-    function adicionarAoCarrinho(nome, preco, imagem) {
-      // Recupera o carrinho do localStorage ou cria um novo array vazio
-      let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-      
-      // Adiciona o novo produto ao carrinho
-      carrinho.push({
-        nome: nome,
-        preco: preco,
-        imagem: imagem
-      });
-      
-      // Salva o carrinho atualizado no localStorage
-      localStorage.setItem('carrinho', JSON.stringify(carrinho));
-      
-      // Mostra mensagem de sucesso
-      alert(`${nome} foi adicionado ao carrinho!`);
-      
-      // Atualiza o contador do carrinho na navbar
-      atualizarContadorCarrinho();
-    }
-    
-    // Função para atualizar o contador do carrinho
-    function atualizarContadorCarrinho() {
-      let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-      let contador = document.querySelector('.cart-btn .contador');
-      
-      if (!contador) {
-        contador = document.createElement('span');
-        contador.className = 'contador';
-        document.querySelector('.cart-btn').appendChild(contador);
-      }
-      
-      contador.textContent = carrinho.length > 0 ? carrinho.length : '';
-    }
-    
-    // Atualiza o contador quando a página carrega
-    document.addEventListener('DOMContentLoaded', atualizarContadorCarrinho);
+// Função para adicionar produto ao carrinho
+function adicionarAoCarrinho(nome, preco, imagem) {
+  // Recupera o carrinho do localStorage ou cria um novo array vazio
+  let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+  
+  // Adiciona o novo produto ao carrinho
+  carrinho.push({
+    nome: nome,
+    preco: preco,
+    imagem: imagem
+  });
+  
+  // Salva o carrinho atualizado no localStorage
+  localStorage.setItem('carrinho', JSON.stringify(carrinho));
+  
+  // Mostra mensagem de sucesso
+  alert(`${nome} foi adicionado ao carrinho!`);
+  
+  // Atualiza o contador do carrinho na navbar
+  atualizarContadorCarrinho();
+}
+
+// Função para atualizar o contador do carrinho
+function atualizarContadorCarrinho() {
+  let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+  let contador = document.querySelector('.cart-btn .contador');
+  
+  if (!contador) {
+    contador = document.createElement('span');
+    contador.className = 'contador';
+    document.querySelector('.cart-btn').appendChild(contador);
+  }
+  
+  contador.textContent = carrinho.length > 0 ? carrinho.length : '';
+}
+
+// Atualiza o contador quando a página carrega
+document.addEventListener('DOMContentLoaded', atualizarContadorCarrinho);
