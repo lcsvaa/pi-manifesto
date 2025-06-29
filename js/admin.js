@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       // Fallback caso a aba não exista
       document.querySelector('.category-tab[data-category="pedidos"]').classList.add('active');
-      document.getElementById('pedidos-section').classcons.add('active');
+      document.getElementById('pedidos-section').classList.add('active');
     }
   }
 
@@ -91,7 +91,293 @@ document.addEventListener('DOMContentLoaded', function() {
       addCupomBtn.style.display = 'inline-flex';
     });
   }
-  
+
+  // =============================================
+  // FUNÇÕES DE EDIÇÃO
+  // =============================================
+
+  // Edição de clientes
+  document.querySelectorAll('.clientes-table .btn-view').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const userId = this.getAttribute('data-id');
+      openEditModal('cliente', userId);
+    });
+  });
+
+  // Edição de pedidos
+  document.querySelectorAll('.pedido-actions .editar').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const pedidoId = this.closest('.pedido-card').querySelector('.pedido-id').textContent;
+      openEditModal('pedido', pedidoId.replace('#', ''));
+    });
+  });
+
+  // Edição de produtos
+  document.querySelectorAll('.produto-actions .editar').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const produtoId = this.closest('.produto-card').querySelector('h3').textContent;
+      openEditModal('produto', produtoId);
+    });
+  });
+
+  // Edição de cupons
+  document.querySelectorAll('.cupom-actions .editar').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const cupomCodigo = this.closest('.cupom-card').querySelector('.cupom-codigo').textContent;
+      openEditModal('cupom', cupomCodigo);
+    });
+  });
+
+  // Edição de itens de conteúdo
+  document.querySelectorAll('.item-actions .editar').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const itemId = this.closest('.item-card').querySelector('h4').textContent;
+      openEditModal('conteudo', itemId);
+    });
+  });
+
+  // Função para abrir modal de edição
+  function openEditModal(type, id) {
+    // Criar o modal
+    const modalHTML = `
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Editar ${type}: ${id}</h3>
+            <button class="btn-action close-modal"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            ${getEditForm(type, id)}
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel close-modal">Cancelar</button>
+            <button class="btn-submit save-edit" data-type="${type}" data-id="${id}">Salvar Alterações</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Inserir o modal no DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Adicionar eventos aos botões do modal
+    document.querySelectorAll('.close-modal').forEach(btn => {
+      btn.addEventListener('click', closeModal);
+    });
+    
+    document.querySelector('.save-edit').addEventListener('click', saveEdit);
+  }
+
+  // Função para fechar o modal
+  function closeModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+      modal.remove();
+    }
+  }
+
+  // Função para obter o formulário de edição baseado no tipo
+  function getEditForm(type, id) {
+    switch(type) {
+      case 'cliente':
+        return `
+          <form class="edit-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" value="Nome do Cliente ${id}" required>
+              </div>
+              <div class="form-group">
+                <label>E-mail:</label>
+                <input type="email" value="cliente${id}@exemplo.com" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>CPF:</label>
+                <input type="text" value="123.456.789-00" required>
+              </div>
+              <div class="form-group">
+                <label>Data Nascimento:</label>
+                <input type="date" value="1990-01-01" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tipo:</label>
+                <select>
+                  <option value="user">Usuário</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Status:</label>
+                <select>
+                  <option value="ativo">Ativo</option>
+                  <option value="desativado">Desativado</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        `;
+        
+      case 'pedido':
+        return `
+          <form class="edit-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Status:</label>
+                <select>
+                  <option value="pendente">Pendente</option>
+                  <option value="processando">Processando</option>
+                  <option value="enviado">Enviado</option>
+                  <option value="entregue">Entregue</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Data:</label>
+                <input type="date" value="2023-05-15" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Endereço de Entrega:</label>
+              <textarea rows="3">Rua Exemplo, 123 - Centro - São Paulo/SP</textarea>
+            </div>
+            <div class="form-group">
+              <label>Observações:</label>
+              <textarea rows="2"></textarea>
+            </div>
+          </form>
+        `;
+        
+      case 'produto':
+        return `
+          <form class="edit-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" value="${id}" required>
+              </div>
+              <div class="form-group">
+                <label>Categoria:</label>
+                <select>
+                  <option>Roupas</option>
+                  <option>Acessórios</option>
+                  <option>Coleção X</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Preço (R$):</label>
+                <input type="number" step="0.01" value="129.90" required>
+              </div>
+              <div class="form-group">
+                <label>Estoque:</label>
+                <input type="number" value="42" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Descrição:</label>
+              <textarea rows="4">Descrição detalhada do produto ${id}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Imagem:</label>
+              <input type="file" accept="image/*">
+              <small>Deixe em branco para manter a imagem atual</small>
+            </div>
+          </form>
+        `;
+        
+      case 'cupom':
+        return `
+          <form class="edit-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Código:</label>
+                <input type="text" value="${id}" required>
+              </div>
+              <div class="form-group">
+                <label>Desconto (%):</label>
+                <input type="number" min="1" max="100" value="20" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Validade:</label>
+                <input type="date" value="2023-12-31" required>
+              </div>
+              <div class="form-group">
+                <label>Usos Restantes:</label>
+                <input type="number" min="0" value="150">
+                <small>Deixe em branco para ilimitado</small>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Status:</label>
+              <select>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+          </form>
+        `;
+        
+      case 'conteudo':
+        return `
+          <form class="edit-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Título:</label>
+                <input type="text" value="${id}" required>
+              </div>
+              <div class="form-group">
+                <label>Data:</label>
+                <input type="date" value="2023-03-15" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Imagem:</label>
+              <input type="file" accept="image/*">
+              <small>Deixe em branco para manter a imagem atual</small>
+            </div>
+            <div class="form-group">
+              <label>Conteúdo:</label>
+              <textarea rows="6">Conteúdo detalhado sobre ${id}</textarea>
+            </div>
+          </form>
+        `;
+        
+      default:
+        return '<p>Formulário de edição não disponível para este tipo.</p>';
+    }
+  }
+
+  // Função para salvar edições
+  function saveEdit() {
+    const type = this.getAttribute('data-type');
+    const id = this.getAttribute('data-id');
+    const form = document.querySelector('.edit-form');
+    
+    // Simular envio dos dados
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    
+    // Aqui você faria uma chamada AJAX para salvar no banco de dados
+    setTimeout(() => {
+      alert(`${type.charAt(0).toUpperCase() + type.slice(1)} ${id} atualizado com sucesso!`);
+      closeModal();
+      
+      // Atualizar a interface conforme necessário
+      // Por exemplo, para produtos:
+      if (type === 'produto') {
+        const produtoCard = document.querySelector(`.produto-card h3:contains("${id}")`).closest('.produto-card');
+        // Atualizar os dados no card do produto
+      }
+    }, 1500);
+  }
+
   // Validação de formulários
   const forms = document.querySelectorAll('form');
   
@@ -162,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
     });
   });
-  
+
   // Ações de estoque
   document.querySelectorAll('.estoque-actions .fa-plus').forEach(btn => {
     btn.addEventListener('click', function() {

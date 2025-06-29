@@ -372,6 +372,46 @@ $page_title = "Painel Administrativo";
             </form>
           </div>
         </div>
+
+        <!-- Subseção Coleção X -->
+<div class="content-panel" id="colecao-panel">
+  <h2><i class="fas fa-star"></i> Gerenciar Coleção X</h2>
+  
+  <div class="current-items">
+    <h3>Produtos em Destaque</h3>
+    <div class="items-grid">
+      <div class="item-card">
+        <img src="img/produto10.png" alt="Camiseta Oversized">
+        <div class="item-info">
+          <h4>Camiseta Oversized</h4>
+          <p>R$ 129,90</p>
+        </div>
+        <div class="item-actions">
+          <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
+          <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="add-item-form">
+    <h3>Adicionar Produto</h3>
+    <form>
+      <div class="form-group">
+        <label for="colecao-produto">Selecionar Produto:</label>
+        <select id="colecao-produto">
+          <option>Selecione um produto</option>
+          <option>Camiseta Premium</option>
+          <option>Calça Jogger</option>
+          <option>Boné Snapback</option>
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button type="submit" class="btn-submit">Adicionar à Seção</button>
+      </div>
+    </form>
+  </div>
+</div>
         
         <!-- Subseção Novidades -->
         <div class="content-panel" id="novidades-panel">
