@@ -87,7 +87,7 @@ $page_title = "Painel Administrativo";
   <main class="admin-main">
     <div class="container">
      <!-- Seção Clientes -->
-<section class="admin-section" id="clientes-section">
+<section class="admin-section active" id="clientes-section">
   <h1 class="section-title"><i class="fas fa-users"></i> Gerenciamento de Clientes</h1>
   
   <?php
@@ -205,7 +205,7 @@ $page_title = "Painel Administrativo";
      
 
       <!-- Seção Pedidos -->
-      <section class="admin-section active" id="pedidos-section">
+      <section class="admin-section" id="pedidos-section">
         <h1 class="section-title"><i class="fas fa-shopping-bag"></i> Gerenciamento de Pedidos</h1>
         
         <div class="section-actions">
