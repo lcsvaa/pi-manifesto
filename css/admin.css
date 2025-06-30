@@ -199,6 +199,40 @@ h4 { font-size: 1.25rem; }
   transform: translateY(-2px);
 }
 
+/* Estilos para a gestão de categorias e coleções */
+.dual-management {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.management-section {
+  flex: 1;
+  background: #000000;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.management-section h3 {
+  margin-top: 0;
+  color: #e91e63;
+  border-bottom: 1px solid #ffffff;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.management-section .add-item-form {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.management-section .add-item-form h4 {
+  margin-top: 0;
+  color: #ffffff;
+}
+
 /* Categorias */
 .admin-categories {
   background-color: #111;

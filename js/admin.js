@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(error => {
       console.error('Erro ao carregar imagens:', error);
     });
-}
+} // Inicializar categorias e coleções
 
   // Configura os eventos para os botões do carrossel
   function setupCarrosselActions() {
@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Função para abrir modal de edição
-  function openEditModal(type, id) {
+  function openEditModal(type, id, data = {}) {
     // Criar o modal
     const modalHTML = `
       <div class="modal-overlay">
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <button class="btn-action close-modal"><i class="fas fa-times"></i></button>
           </div>
           <div class="modal-body">
-            ${getEditForm(type, id)}
+            ${getEditForm(type, id, data)}
           </div>
           <div class="modal-footer">
             <button class="btn-cancel close-modal">Cancelar</button>
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Função para obter o formulário de edição baseado no tipo
-  function getEditForm(type, id) {
+  function getEditForm(type, id, data = {}) {
     switch (type) {
       case "cliente":
         return `
@@ -498,6 +498,26 @@ document.addEventListener("DOMContentLoaded", function () {
           </form>
         `;
 
+      case "categoria":
+        return `
+          <form class="edit-form">
+            <div class="form-group">
+              <label>Nome da Categoria:</label>
+              <input type="text" name="nome" value="${data.nome || ''}" required>
+            </div>
+          </form>
+        `;
+      
+      case "colecao":
+        return `
+          <form class="edit-form">
+            <div class="form-group">
+              <label>Nome da Coleção:</label>
+              <input type="text" name="nome" value="${data.nome || ''}" required>
+            </div>
+          </form>
+        `;
+
       default:
         return "<p>Formulário de edição não disponível para este tipo.</p>";
     }
@@ -520,24 +540,50 @@ document.addEventListener("DOMContentLoaded", function () {
     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
 
     if (type === "carrossel") {
-  saveCarrosselEdit(id, formData)
-    .then((data) => {
-      if (data.success) {
-        alert("Imagem do carrossel atualizada com sucesso!");
-        loadCarrosselImages(); // Isso agora só atualiza o grid
-        closeModal();
-      } else {
-        alert("Erro: " + data.message);
+      saveCarrosselEdit(id, formData)
+        .then((data) => {
+          if (data.success) {
+            alert("Imagem do carrossel atualizada com sucesso!");
+            loadCarrosselImages(); // Isso agora só atualiza o grid
+            closeModal();
+          } else {
+            alert("Erro: " + data.message);
+            this.disabled = false;
+            this.innerHTML = "Salvar Alterações";
+          }
+        })
+        .catch((error) => {
+          alert("Erro na requisição: " + error);
+          this.disabled = false;
+          this.innerHTML = "Salvar Alterações";
+        });
+    } else if (type === "categoria" || type === "colecao") {
+      const endpoint = type === "categoria" ? "processa_categoria.php" : "processa_colecao.php";
+      
+      formData.append("id", id);
+      formData.append("action", "update");
+
+      fetch(endpoint, {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(`${type === "categoria" ? "Categoria" : "Coleção"} atualizada com sucesso!`);
+          if (type === "categoria") loadCategorias();
+          else loadColecoes();
+          closeModal();
+        } else {
+          alert("Erro: " + data.message);
+        }
+      })
+      .catch(error => alert("Erro: " + error))
+      .finally(() => {
         this.disabled = false;
         this.innerHTML = "Salvar Alterações";
-      }
-    })
-    .catch((error) => {
-      alert("Erro na requisição: " + error);
-      this.disabled = false;
-      this.innerHTML = "Salvar Alterações";
-    });
-} else {
+      });
+    } else {
       // Simular envio dos dados para outros tipos
       setTimeout(() => {
         alert(
@@ -698,6 +744,170 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     }
+  }
+
+  // =============================================
+  // CÓDIGO ADICIONADO PARA CATEGORIAS E COLEÇÕES
+  // =============================================
+
+  // Carregar categorias
+  function loadCategorias() {
+    fetch('ger_categorias.php')
+      .then(response => response.text())
+      .then(html => {
+        const grid = document.getElementById("categorias-grid");
+        if (grid) grid.innerHTML = html;
+        setupCategoriaActions();
+      })
+      .catch(error => console.error('Erro ao carregar categorias:', error));
+  }
+
+  // Carregar coleções
+  function loadColecoes() {
+    fetch('ger_colecoes.php')
+      .then(response => response.text())
+      .then(html => {
+        const grid = document.getElementById("colecoes-grid");
+        if (grid) grid.innerHTML = html;
+        setupColecaoActions();
+      })
+      .catch(error => console.error('Erro ao carregar coleções:', error));
+  }
+
+  // Configurar ações para categorias
+  function setupCategoriaActions() {
+    // Botões de remover
+    document.querySelectorAll("#categorias-grid .remover").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const id = this.getAttribute("data-id");
+        if (confirm("Tem certeza que deseja remover esta categoria?")) {
+          fetch(`processa_categoria.php?action=remove&id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                this.closest(".item-card").remove();
+                alert("Categoria removida com sucesso!");
+              } else {
+                alert("Erro: " + data.message);
+              }
+            })
+            .catch(error => {
+              alert("Erro ao remover categoria: " + error);
+            });
+        }
+      });
+    });
+
+    // Botões de editar
+    document.querySelectorAll("#categorias-grid .editar").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const id = this.getAttribute("data-id");
+        const nome = this.closest(".item-card").querySelector("h4").textContent;
+        openEditModal("categoria", id, { nome });
+      });
+    });
+  }
+
+  // Configurar ações para coleções
+  function setupColecaoActions() {
+    // Botões de remover
+    document.querySelectorAll("#colecoes-grid .remover").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const id = this.getAttribute("data-id");
+        if (confirm("Tem certeza que deseja remover esta coleção?")) {
+          fetch(`processa_colecao.php?action=remove&id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                this.closest(".item-card").remove();
+                alert("Coleção removida com sucesso!");
+              } else {
+                alert("Erro: " + data.message);
+              }
+            })
+            .catch(error => {
+              alert("Erro ao remover coleção: " + error);
+            });
+        }
+      });
+    });
+
+    // Botões de editar
+    document.querySelectorAll("#colecoes-grid .editar").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const id = this.getAttribute("data-id");
+        const nome = this.closest(".item-card").querySelector("h4").textContent;
+        openEditModal("colecao", id, { nome });
+      });
+    });
+  }
+
+  // Adicionar formulários
+  document.getElementById("form-categoria")?.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const btn = this.querySelector('button[type="submit"]');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    fetch("processa_categoria.php?action=add", {
+      method: "POST",
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Categoria adicionada com sucesso!");
+        this.reset();
+        loadCategorias();
+      } else {
+        alert("Erro: " + data.message);
+      }
+    })
+    .catch(error => alert("Erro: " + error))
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = "Adicionar Categoria";
+    });
+  });
+
+  document.getElementById("form-colecao")?.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const btn = this.querySelector('button[type="submit"]');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    fetch("processa_colecao.php?action=add", {
+      method: "POST",
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Coleção adicionada com sucesso!");
+        this.reset();
+        loadColecoes();
+      } else {
+        alert("Erro: " + data.message);
+      }
+    })
+    .catch(error => alert("Erro: " + error))
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = "Adicionar Coleção";
+    });
+  });
+
+  // Carregar categorias e coleções quando a página for carregada
+  if (document.getElementById("categorias-grid")) {
+    loadCategorias();
+  }
+
+  if (document.getElementById("colecoes-grid")) {
+    loadColecoes();
   }
 });
 

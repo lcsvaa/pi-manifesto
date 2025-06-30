@@ -285,11 +285,12 @@ $page_title = "Painel Administrativo";
         <h1 class="section-title"><i class="fas fa-paint-brush"></i> Gerenciamento de Conteúdo</h1>
 
         <div class="content-tabs">
-          <button class="content-tab active" data-content="carrossel">Carrossel</button>
-          <button class="content-tab" data-content="lancamentos">Lançamentos</button>
-          <button class="content-tab" data-content="colecao">Coleção X</button>
-          <button class="content-tab" data-content="novidades">Novidades</button>
-        </div>
+  <button class="content-tab active" data-content="carrossel">Carrossel</button>
+  <button class="content-tab" data-content="lancamentos">Lançamentos</button>
+  <button class="content-tab" data-content="colecao">Coleção X</button>
+  <button class="content-tab" data-content="novidades">Novidades</button>
+  <button class="content-tab" data-content="categorias">Categorias e Coleções</button>
+</div>
 
         <!-- Subseção Carrossel -->
 <div class="content-panel active" id="carrossel-panel">
@@ -491,6 +492,93 @@ $page_title = "Painel Administrativo";
           </div>
         </div>
       </section>
+
+      <!-- Adicione isso após a subseção Novidades -->
+<div class="content-panel" id="categorias-panel">
+  <h2><i class="fas fa-tags"></i> Gerenciar Categorias e Coleções</h2>
+
+  <div class="dual-management">
+    <!-- Seção de Categorias -->
+    <div class="management-section">
+      <h3><i class="fas fa-tag"></i> Categorias</h3>
+      
+      <div class="current-items">
+        <div class="items-grid" id="categorias-grid">
+          <?php
+          $categorias = $pdo->query("SELECT * FROM tb_categoria ORDER BY id");
+          foreach ($categorias as $cat): ?>
+            <div class="item-card" data-id="<?= $cat['id'] ?>">
+              <div class="item-info">
+                <h4><?= htmlspecialchars($cat['ctgNome']) ?></h4>
+              </div>
+              <div class="item-actions">
+                <button class="btn-action editar" data-id="<?= $cat['id'] ?>">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn-action remover" data-id="<?= $cat['id'] ?>">
+                  <i class="fas fa-trash"></i> Remover
+                </button>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <div class="add-item-form">
+        <h4>Adicionar Nova Categoria</h4>
+        <form id="form-categoria">
+          <div class="form-group">
+            <label for="categoria-nome">Nome da Categoria:</label>
+            <input type="text" id="categoria-nome" name="nome" required>
+          </div>
+          <div class="form-buttons">
+            <button type="submit" class="btn-submit">Adicionar Categoria</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Seção de Coleções -->
+    <div class="management-section">
+      <h3><i class="fas fa-layer-group"></i> Coleções</h3>
+      
+      <div class="current-items">
+        <div class="items-grid" id="colecoes-grid">
+          <?php
+          $colecoes = $pdo->query("SELECT * FROM tb_colecao ORDER BY id");
+          foreach ($colecoes as $col): ?>
+            <div class="item-card" data-id="<?= $col['id'] ?>">
+              <div class="item-info">
+                <h4><?= htmlspecialchars($col['colecaoNome']) ?></h4>
+              </div>
+              <div class="item-actions">
+                <button class="btn-action editar" data-id="<?= $col['id'] ?>">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn-action remover" data-id="<?= $col['id'] ?>">
+                  <i class="fas fa-trash"></i> Remover
+                </button>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <div class="add-item-form">
+        <h4>Adicionar Nova Coleção</h4>
+        <form id="form-colecao">
+          <div class="form-group">
+            <label for="colecao-nome">Nome da Coleção:</label>
+            <input type="text" id="colecao-nome" name="nome" required>
+          </div>
+          <div class="form-buttons">
+            <button type="submit" class="btn-submit">Adicionar Coleção</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
       <!-- Seção Produtos -->
       <section class="admin-section" id="produtos-section">
