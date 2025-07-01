@@ -1,40 +1,85 @@
+<?php
+require_once "conexao.php";
+session_start();
+
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$id) {
+    echo "Produto inválido.";
+    exit;
+}
+
+// Buscar dados do produto
+$stmt = $pdo->prepare("
+    SELECT p.*, c.ctgNome, co.colecaoNome, i.nomeImagem
+    FROM tb_produto p
+    LEFT JOIN tb_imagem i ON i.idProduto = p.id
+    LEFT JOIN tb_categoria c ON p.idCategoria = c.id
+    LEFT JOIN tb_colecao co ON p.idColecao = co.id
+    WHERE p.id = :id
+");
+$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+$stmt->execute();
+$produto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$produto) {
+    echo "Produto não encontrado.";
+    exit;
+}
+
+// Buscar imagens do produto para a galeria
+$stmtImgs = $pdo->prepare("SELECT nomeImagem FROM tb_imagemproduto WHERE idProduto = :idProduto ORDER BY statusImagem DESC");
+$stmtImgs->bindParam(':idProduto', $id, PDO::PARAM_INT);
+$stmtImgs->execute();
+$imagens = $stmtImgs->fetchAll(PDO::FETCH_ASSOC);
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detalhes do Produto - Manifesto</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/detalhes-produto.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detalhes do Produto - <?= htmlspecialchars($produto['nomeItem']) ?></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/detalhes-produto.css" />
 </head>
 
 <body>
-
   <!-- NAVBAR -->
-
   <?php include_once "navbar.php" ?>
 
   <div class="container">
     <div class="product-detail">
       <!-- Galeria de Imagens -->
       <div class="product-gallery">
-        <img src="img/produto1.png" alt="Camiseta Oversized" class="main-image" id="mainImage">
+        <?php 
+
+        $imagemPrincipal = $imagens[0]['nomeImagem'] ?? '';
+        ?>
+        <?php if ($imagemPrincipal): ?>
+          <img src="uploads/produtos/<?= htmlspecialchars($imagemPrincipal) ?>" alt="<?= htmlspecialchars($produto['nomeItem']) ?>" class="main-image" id="mainImage">
+        <?php else: ?>
+          <p>Imagem não disponível</p>
+        <?php endif; ?>
+
         <div class="thumbnail-container">
-          <img src="img/produto1.png" alt="Miniatura 1" class="thumbnail active" onclick="changeImage(this, 'https://via.placeholder.com/600x600')">
-          <img src="img/produto1.png" alt="Miniatura 2" class="thumbnail" onclick="changeImage(this, 'https://via.placeholder.com/600x600/333')">
-          <img src="img/produto1.png" alt="Miniatura 3" class="thumbnail" onclick="changeImage(this, 'https://via.placeholder.com/600x600/555')">
+          <?php foreach ($imagens as $index => $img): ?>
+            <img 
+              src="uploads/produtos/<?= htmlspecialchars($img['nomeImagem']) ?>" 
+              alt="Miniatura <?= $index + 1 ?>" 
+              class="thumbnail <?= $index === 0 ? 'active' : '' ?>" 
+              onclick="changeImage(this, 'uploads/produtos/<?= htmlspecialchars($img['nomeImagem']) ?>')"
+            >
+          <?php endforeach; ?>
         </div>
       </div>
 
       <!-- Informações do Produto -->
       <div class="product-info">
-        <h1 class="product-title">Camiseta Oversized</h1>
+        <h1 class="product-title"><?= htmlspecialchars($produto['nomeItem']) ?></h1>
 
-        <div class="product-price">R$ 129,90</div>
+        <div class="product-price">R$ <?= number_format($produto['valorItem'], 2, ',', '.') ?></div>
 
         <!-- Tamanhos -->
         <div class="option-group">
@@ -47,50 +92,31 @@
           </div>
         </div>
 
-        <!-- Cores -->
-        <div class="option-group">
-          <span class="option-title">Cor:</span>
-          <div class="color-options">
-            <div class="color-btn selected" style="background-color: #000;"></div>
-            <div class="color-btn" style="background-color: #e91e63;"></div>
-            <div class="color-btn" style="background-color: #2196F3;"></div>
-          </div>
-        </div>
-
-        <!-- Quantidade -->
         <div class="quantity-control">
           <span class="option-title">Quantidade:</span>
           <button class="qty-btn" onclick="changeQuantity(-1)">-</button>
-          <input type="number" value="1" min="1" class="qty-input" id="quantity">
+          <input type="number" value="1" min="1" class="qty-input" id="quantity" max="<?= intval($produto['estoqueItem']) ?>">
           <button class="qty-btn" onclick="changeQuantity(1)">+</button>
         </div>
 
-        <!-- Botão Comprar -->
-        <button class="add-to-cart">
+        <button class="add-to-cart" id="btnAdd">
           <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
         </button>
 
-        <!-- Descrição -->
         <div class="product-description">
           <h3>Descrição do Produto</h3>
-          <p>Camiseta oversized de algodão orgânico com corte relaxado e caimento perfeito. Ideal para looks casuais e confortáveis. Possui estampa exclusiva serigrafada e costuras reforçadas para maior durabilidade.</p>
-          <ul>
-            <li>100% algodão orgânico</li>
-            <li>Estampa serigrafada</li>
-            <li>Corte oversized</li>
-            <li>Disponível em 4 tamanhos</li>
-          </ul>
+          <p><?= nl2br(htmlspecialchars($produto['descItem'])) ?></p>
         </div>
       </div>
     </div>
   </div>
 
   <!-- FOOTER -->
-
   <?php include_once "footer.php" ?>
 
-
   <script src="js/detalhes-produto.js"></script>
+  <script src="js/cart.js"></script>
+
 </body>
 
 </html>

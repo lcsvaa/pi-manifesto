@@ -523,11 +523,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function getProdutosOptions() {
-    // Você pode fazer uma chamada AJAX para obter os produtos ou
-    // renderizar as opções no PHP quando a página carregar
-    return ""; // Retornar options HTML aqui
-  }
 
   // Modificar a função saveEdit para incluir o caso do carrossel
   function saveEdit() {

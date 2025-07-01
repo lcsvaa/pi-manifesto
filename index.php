@@ -64,31 +64,38 @@
 </section>
 
   <!-- LANÇAMENTOS -->
-  <section class="lancamentos">
-    <div class="container">
-      <h2>Lançamentos</h2>
-      <div class="produto-lista">
-        <div class="produto-card">
-          <img src="img/produto10.png" alt="Camiseta Oversized" />
-          <h3>Camiseta Oversized</h3>
-          <p class="preco">R$ 129,90</p>
-          <button class="btn-comprar">Comprar</button>
-        </div>
-        <div class="produto-card">
-          <img src="img/produto11.png" alt="Calça Jogger" />
-          <h3>Calça Jogger</h3>
-          <p class="preco">R$ 189,90</p>
-          <button class="btn-comprar">Comprar</button>
-        </div>
-        <div class="produto-card">
-          <img src="img/produto12.png" alt="Boné Snapback" />
-          <h3>Boné Snapback</h3>
-          <p class="preco">R$ 89,90</p>
-          <button class="btn-comprar">Comprar</button>
-        </div>
-      </div>
+<section class="lancamentos">
+  <div class="container">
+    <h2>Lançamentos</h2>
+    <div class="produto-lista">
+      <?php
+      require_once 'conexao.php';
+
+      // Buscar os produtos mais recentes, por exemplo
+      $sql = "SELECT p.id, p.nomeItem, p.valorItem, i.nomeImagem 
+              FROM tb_produto p 
+              LEFT JOIN tb_imagemproduto i ON i.idProduto = p.id AND i.statusImagem = 'principal'
+              ORDER BY p.id DESC
+              LIMIT 6";
+
+      $stmt = $pdo->query($sql);
+
+      while ($produto = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $nome = htmlspecialchars($produto['nomeItem']);
+          $preco = number_format($produto['valorItem'], 2, ',', '.');
+          $img = $produto['nomeImagem'] ? "uploads/produtos/" . $produto['nomeImagem'] : "img/default-product.png";
+
+          echo '<div class="produto-card">';
+          echo '<img src="' . $img . '" alt="' . $nome . '" />';
+          echo '<h3>' . $nome . '</h3>';
+          echo '<p class="preco">R$ ' . $preco . '</p>';
+          echo '<a href="detalhes-produto.php?id=' . $produto['id'] . '" class="btn-comprar">Comprar</a>';
+          echo '</div>';
+      }
+      ?>
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- COLEÇÃO -->
   <section class="colecao">

@@ -85,7 +85,7 @@ CREATE TABLE tb_pagamento (
 CREATE TABLE tb_novidades (
     idNovidade INT PRIMARY KEY AUTO_INCREMENT,
     titulo VARCHAR(180) NOT NULL,
-    dataNotivade DATE NOT NULL,
+    dataNovidade DATE NOT NULL,
     imagemNovidade VARCHAR(180) NOT NULL,
     conteudo TEXT NOT NULL
 );

@@ -31,7 +31,7 @@ try {
     $id = $_GET['id'] ?? 0;
     
     // Verificar se há produtos usando esta coleção
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tb_produto WHERE colecao = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tb_produto WHERE idColecao = ?");
     $stmt->execute([$id]);
     $count = $stmt->fetchColumn();
     

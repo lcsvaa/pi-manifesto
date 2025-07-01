@@ -33,7 +33,7 @@ $page_title = "Painel Administrativo";
   <title>Painel Administrativo | Manifesto</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/admin.css" />
-
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Fontes do Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -285,16 +285,16 @@ $page_title = "Painel Administrativo";
         <h1 class="section-title"><i class="fas fa-paint-brush"></i> Gerenciamento de Conteúdo</h1>
 
         <div class="content-tabs">
-  <button class="content-tab active" data-content="carrossel">Carrossel</button>
-  <button class="content-tab" data-content="lancamentos">Lançamentos</button>
-  <button class="content-tab" data-content="colecao">Coleção X</button>
-  <button class="content-tab" data-content="novidades">Novidades</button>
-  <button class="content-tab" data-content="categorias">Categorias e Coleções</button>
-</div>
+          <button class="content-tab active" data-content="carrossel">Carrossel</button>
+          <button class="content-tab" data-content="lancamentos">Lançamentos</button>
+          <button class="content-tab" data-content="colecao">Coleção X</button>
+          <button class="content-tab" data-content="novidades">Novidades</button>
+          <button class="content-tab" data-content="categorias">Categorias e Coleções</button>
+        </div>
 
         <!-- Subseção Carrossel -->
-<div class="content-panel active" id="carrossel-panel">
-  <h2><i class="fas fa-images"></i> Gerenciar Carrossel</h2>
+      <div class="content-panel active" id="carrossel-panel">
+        <h2><i class="fas fa-images"></i> Gerenciar Carrossel</h2>
   
   <div class="current-items">
     <h3>Imagens Ativas no Site</h3>
@@ -581,80 +581,42 @@ $page_title = "Painel Administrativo";
 </div>
 
       <!-- Seção Produtos -->
+      <!-- Seção Produtos -->
       <section class="admin-section" id="produtos-section">
         <h1 class="section-title"><i class="fas fa-tshirt"></i> Gerenciamento de Produtos</h1>
 
         <div class="section-actions">
           <button class="btn-action add-produto-btn"><i class="fas fa-plus"></i> Adicionar Novo Produto</button>
           <div class="search-filter">
-            <input type="text" placeholder="Buscar produto..." class="admin-search">
-            <select class="admin-filter">
-              <option>Todas as categorias</option>
-              <option>Roupas</option>
-              <option>Acessórios</option>
-              <option>Coleção X</option>
+            <input type="text" placeholder="Buscar produto por nome..." class="admin-search" id="busca-produto-adm">
+            <select class="admin-filter" id="produto-categoria" name="idCategoria">
+                  <option value="">Selecione</option>
             </select>
           </div>
         </div>
 
-        <div class="produtos-grid">
-          <div class="produto-card">
-            <img src="img/produto10.png" alt="Camiseta Oversized">
-            <div class="produto-info">
-              <h3>Camiseta Oversized</h3>
-              <p class="produto-categoria">Roupas</p>
-              <p class="produto-preco">R$ 129,90</p>
-              <div class="produto-estoque">
-                <span>Estoque: 42</span>
-                <div class="estoque-actions">
-                  <button class="btn-action small"><i class="fas fa-plus"></i></button>
-                  <button class="btn-action small"><i class="fas fa-minus"></i></button>
-                </div>
-              </div>
-            </div>
-            <div class="produto-actions">
-              <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-              <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
-            </div>
-          </div>
-
-          <div class="produto-card">
-            <img src="img/produto11.png" alt="Calça Jogger">
-            <div class="produto-info">
-              <h3>Calça Jogger</h3>
-              <p class="produto-categoria">Roupas</p>
-              <p class="produto-preco">R$ 189,90</p>
-              <div class="produto-estoque">
-                <span>Estoque: 15</span>
-                <div class="estoque-actions">
-                  <button class="btn-action small"><i class="fas fa-plus"></i></button>
-                  <button class="btn-action small"><i class="fas fa-minus"></i></button>
-                </div>
-              </div>
-            </div>
-            <div class="produto-actions">
-              <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-              <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
-            </div>
-          </div>
-        </div>
+        <div class="produtos-grid" id="produtos-container"></div>
 
         <!-- Formulário para adicionar novo produto -->
         <div class="add-produto-form" style="display: none;">
           <h2><i class="fas fa-plus-circle"></i> Adicionar Novo Produto</h2>
-          <form>
+          <form id="form-produto" enctype="multipart/form-data">
+            <input type="hidden" id="produto-id" name="id" value="">
             <div class="form-row">
               <div class="form-group">
                 <label for="produto-nome">Nome do Produto:</label>
-                <input type="text" id="produto-nome" required>
+                <input type="text" id="produto-nome" name="nomeItem" required>
               </div>
               <div class="form-group">
                 <label for="produto-categoria">Categoria:</label>
-                <select id="produto-categoria" required>
+                <select class="admin-filter" id="produto-categoria-form" name="idCategoria" required>
                   <option value="">Selecione</option>
-                  <option>Roupas</option>
-                  <option>Acessórios</option>
-                  <option>Coleção X</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="produto-colecao">Coleção:</label>
+                <select id="produto-colecao" name="idColecao" required>
+                  <option value="">Selecione</option>
                 </select>
               </div>
             </div>
@@ -662,22 +624,27 @@ $page_title = "Painel Administrativo";
             <div class="form-row">
               <div class="form-group">
                 <label for="produto-preco">Preço (R$):</label>
-                <input type="number" id="produto-preco" step="0.01" min="0" required>
+                <input type="number" id="produto-preco" name="valorItem" step="0.01" min="0" required>
               </div>
               <div class="form-group">
                 <label for="produto-estoque">Estoque Inicial:</label>
-                <input type="number" id="produto-estoque" min="0" required>
+                <input type="number" id="produto-estoque" name="estoqueItem" min="0" required>
               </div>
             </div>
 
             <div class="form-group">
               <label for="produto-descricao">Descrição:</label>
-              <textarea id="produto-descricao" rows="3"></textarea>
+              <textarea id="produto-descricao" name="descItem" rows="3" required></textarea>
+        </div>
+
+            <div class="form-group">
+              <label for="produto-imagem-principal">Imagem Principal:</label>
+              <input type="file" id="produto-imagem-principal" name="imagemPrincipal" accept="image/*" required>
             </div>
 
             <div class="form-group">
-              <label for="produto-imagem">Imagem do Produto:</label>
-              <input type="file" id="produto-imagem" accept="image/*" required>
+              <label for="produto-outras-imagens">Outras Imagens:</label>
+              <input type="file" id="produto-outras-imagens" name="outrasImagens[]" accept="image/*" multiple>
             </div>
 
             <div class="form-buttons">
@@ -696,76 +663,57 @@ $page_title = "Painel Administrativo";
           <button class="btn-action add-cupom-btn"><i class="fas fa-plus"></i> Criar Novo Cupom</button>
         </div>
 
-        <div class="cupons-list">
-          <div class="cupom-card">
-            <div class="cupom-header">
-              <span class="cupom-codigo">BLACKFRIDAY23</span>
-              <span class="cupom-status active">Ativo</span>
-            </div>
-            <div class="cupom-info">
-              <p><strong>Desconto:</strong> 20%</p>
-              <p><strong>Validade:</strong> 30/11/2023</p>
-              <p><strong>Usos restantes:</strong> 150</p>
-            </div>
-            <div class="cupom-actions">
-              <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-              <button class="btn-action desativar"><i class="fas fa-ban"></i> Desativar</button>
-            </div>
-          </div>
-
-          <div class="cupom-card">
-            <div class="cupom-header">
-              <span class="cupom-codigo">VERAO10</span>
-              <span class="cupom-status inactive">Inativo</span>
-            </div>
-            <div class="cupom-info">
-              <p><strong>Desconto:</strong> 10%</p>
-              <p><strong>Validade:</strong> 15/03/2023</p>
-              <p><strong>Usos restantes:</strong> 0</p>
-            </div>
-            <div class="cupom-actions">
-              <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-              <button class="btn-action ativar"><i class="fas fa-check"></i> Ativar</button>
-            </div>
-          </div>
-        </div>
+        <div class="cupons-list" id="lista-cupons"></div>
 
         <!-- Formulário para adicionar novo cupom -->
         <div class="add-cupom-form" style="display: none;">
           <h2><i class="fas fa-tag"></i> Criar Novo Cupom</h2>
-          <form>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="cupom-codigo">Código do Cupom:</label>
-                <input type="text" id="cupom-codigo" required>
-              </div>
-              <div class="form-group">
-                <label for="cupom-desconto">Desconto (%):</label>
-                <input type="number" id="cupom-desconto" min="1" max="100" required>
-              </div>
-            </div>
+        <form id="cupomForm">
+        <input type="hidden" id="cupom-id" name="id"> <!-- nome correto aqui -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cupom-codigo">Código do Cupom:</label>
+            <input type="text" id="cupom-codigo" name="codigo" required>
+          </div>
+          <div class="form-group">
+            <label for="porcentagemDesconto">Valor do Desconto:</label>
+            <input type="number" id="cupom-desconto" name="porcentagemDesconto" min="1" required>
+          </div>
+          <div class="form-group">
+            <label for="cupom-tipo">Tipo de Desconto:</label>
+            <select id="cupom-tipo" name="tipoDesconto" required>
+              <option value="" disabled selected>Selecione</option>
+              <option value="porcentagem">Porcentagem</option>
+              <option value="valor">Valor</option>
+            </select>
+          </div>
+        </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="cupom-validade">Data de Validade:</label>
-                <input type="date" id="cupom-validade" required>
-              </div>
-              <div class="form-group">
-                <label for="cupom-usos">Número de Usos:</label>
-                <input type="number" id="cupom-usos" min="1" placeholder="Ilimitado se vazio">
-              </div>
-            </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cupom-validade">Data de Validade:</label>
+            <input type="date" id="cupom-validade" name="dataValidade" required>
+          </div>
+          <div class="form-group">
+            <label for="cupom-usos">Número de Usos:</label>
+            <input type="number" id="cupom-usos" name="quantidadeUso" min="1" placeholder="Ilimitado se vazio">
+          </div>
+          <div class="form-group">
+            <label for="valorCompraMin">Valor Limite para Uso:</label>
+            <input type="number" id="cupom-limite" name="valorLimite" min="0" step="0.01" placeholder="Sem limite se vazio">
+          </div>
+        </div>
 
-            <div class="form-group">
-              <label for="cupom-descricao">Descrição (opcional):</label>
-              <textarea id="cupom-descricao" rows="2" placeholder="Ex: Cupom de Natal 2023"></textarea>
-            </div>
+        <div class="form-group">
+          <label for="cupom-descricao">Descrição (opcional):</label>
+          <textarea id="cupom-descricao" name="descricao" rows="2" placeholder="Ex: Cupom de Natal 2023"></textarea>
+        </div>
 
-            <div class="form-buttons">
-              <button type="submit" class="btn-submit">Criar Cupom</button>
-              <button type="button" class="btn-cancel">Cancelar</button>
-            </div>
-          </form>
+        <div class="form-buttons">
+          <button type="submit" class="btn-submit">Salvar Cupom</button>
+          <button type="button" class="btn-cancel">Cancelar</button>
+        </div>
+      </form>
         </div>
       </section>
     </div>
@@ -816,6 +764,10 @@ $page_title = "Painel Administrativo";
   <!-- JavaScript -->
   <script src="auth-check.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/cupom.js"></script>
+  <script src="js/produto.js"></script>
+  <script src="js/categorias.js"></script>
+  <script src="js/colecoes.js"></script>
 </body>
 
 </html>

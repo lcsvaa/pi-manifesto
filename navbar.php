@@ -14,9 +14,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <div class="nav-center" id="nav-center">
             <ul class="nav-links">
-                <li><a href="roupas.php">Roupas</a></li>
+                <li><a href="Produtos.php">Produtos</a></li>
                 <li><a href="novidades.php">Novidades</a></li>
-                <li><a href="acessorios.php" class="active">Acessórios</a></li>
+                <li><a href="Colecoes.php" class="active">Colecoes</a></li>
             </ul>
         </div>
 
