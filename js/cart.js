@@ -24,6 +24,37 @@ if (hamburgerMenu && navCenter && navRight) {
   });
 }
 
+function showNotification(message, type = "success") {
+  let container = document.getElementById('notification-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'notification-container';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '1000';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '10px';
+    container.style.maxWidth = '300px';
+    document.body.appendChild(container);
+  }
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+
+  container.appendChild(notification);
+
+  setTimeout(() => {
+    notification.classList.add('fade-out');
+    notification.addEventListener('animationend', () => {
+      notification.remove();
+    });
+  }, 3000);
+}
+
+
 // === ATUALIZAR QUANTIDADE ===
 document.querySelectorAll('.quantity-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -98,14 +129,14 @@ if (couponBtn) {
     const input = document.querySelector('.coupon-input');
     const couponCode = input?.value.trim();
     if (!couponCode) {
-      alert('Por favor, insira um código de cupom');
+      showNotification('Por favor, insira um código de cupom');
       return;
     }
 
     fetch(`validarCupom.php?codigo=${encodeURIComponent(couponCode)}`)
       .then(res => res.json())
       .then(data => {
-        alert(data.msg);
+        showNotification(data.msg);
         if (data.status === 'ok') {
           updateCartTotal();
         }
@@ -119,7 +150,7 @@ if (checkoutBtn) {
   checkoutBtn.addEventListener('click', () => {
     const itens = document.querySelectorAll('.cart-item');
     if (itens.length === 0) {
-      alert('Seu carrinho está vazio. Adicione itens antes de finalizar a compra.');
+      showNotification('Seu carrinho está vazio. Adicione itens antes de finalizar a compra.');
       return;
     }
     window.location.href = 'checkout.php';
@@ -155,10 +186,15 @@ function updateCartTotal() {
   fetch('resumoCarrinho.php')
     .then(res => res.json())
     .then(data => {
-      document.querySelector('.summary-row:nth-child(1) span:last-child').textContent = `R$ ${data.subtotal}`;
-      document.querySelector('.summary-row:nth-child(2) span:last-child').textContent = `R$ ${data.frete}`;
-      document.querySelector('.summary-row:nth-child(3) span:last-child').textContent = `- R$ ${data.desconto}`;
-      document.querySelector('.summary-total span:last-child').textContent = `R$ ${data.total}`;
+      const subtotalEl = document.querySelector('.summary-row:nth-child(1) span:last-child');
+      const freteEl = document.querySelector('.summary-row:nth-child(2) span:last-child');
+      const descontoEl = document.querySelector('.summary-row:nth-child(3) span:last-child');
+      const totalEl = document.querySelector('.summary-total span:last-child');
+
+      if (subtotalEl) subtotalEl.textContent = `R$ ${data.subtotal}`;
+      if (freteEl) freteEl.textContent = `R$ ${data.frete}`;
+      if (descontoEl) descontoEl.textContent = `- R$ ${data.desconto}`;
+      if (totalEl) totalEl.textContent = `R$ ${data.total}`;
     });
 }
 

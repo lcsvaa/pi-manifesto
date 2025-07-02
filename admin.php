@@ -33,6 +33,7 @@ $page_title = "Painel Administrativo";
   <title>Painel Administrativo | Manifesto</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notificacao.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Fontes do Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -686,6 +687,7 @@ $page_title = "Painel Administrativo";
               <option value="porcentagem">Porcentagem</option>
               <option value="valor">Valor</option>
             </select>
+          
           </div>
         </div>
 

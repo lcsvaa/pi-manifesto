@@ -18,8 +18,12 @@ if (isset($_SESSION['cupom'])) {
     $desconto = ($subtotal * $_SESSION['cupom']['porcentagem']) / 100;
 }
 
-$frete = 15.00; 
-$total = $subtotal - $desconto + $frete;
+$frete = 0;
+if (!empty($itensCarrinho)) {
+    $frete = 18.90;
+    $total = $subtotal - $desconto + $frete;
+
+}
 
 
 ?>
@@ -32,6 +36,7 @@ $total = $subtotal - $desconto + $frete;
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/notificacao.css" />
     <link rel="stylesheet" href="css/cart.css">
     <link rel="icon" href="img/icone.png" type="image/png">
 </head>
@@ -51,7 +56,7 @@ $total = $subtotal - $desconto + $frete;
                     <i class="fas fa-shopping-cart"></i>
                     <h3>Seu carrinho está vazio</h3>
                     <p>Adicione itens para começar a comprar</p>
-                    <a href="roupas.php" class="btn-continue">Continuar Comprando</a>
+                    <a href="produtos.php" class="btn-continue">Continuar Comprando</a>
                 </div>
             <?php else: ?>
                 <?php foreach ($itensCarrinho as $key => $item): ?>

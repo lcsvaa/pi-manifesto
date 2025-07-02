@@ -1,3 +1,28 @@
+function showNotification(message, type = "success") {
+  let container = document.getElementById('notification-container');
+
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'notification-container';
+    document.body.appendChild(container);
+  }
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+
+  container.appendChild(notification);
+
+  // Aguarda 2.5s antes de iniciar fadeOut
+  setTimeout(() => {
+    notification.classList.add('fade-out');
+    notification.addEventListener('animationend', () => {
+      notification.remove();
+    });
+  }, 2500);
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
   // Verifica a aba ativa a partir da URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -126,15 +151,15 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            alert("Imagem adicionada com sucesso!");
+            showNotification("Imagem adicionada com sucesso!");
             this.reset();
             loadCarrosselImages(); // Recarregar a lista de imagens
           } else {
-            alert("Erro: " + data.message);
+            showNotification("Erro: " + data.message);
           }
         })
         .catch((error) => {
-          alert("Erro na requisição: " + error);
+          showNotification("Erro na requisição: " + error);
         })
         .finally(() => {
           submitBtn.disabled = false;
@@ -173,13 +198,13 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((data) => {
               if (data.success) {
                 this.closest(".item-card").remove();
-                alert("Imagem removida com sucesso!");
+                showNotification("Imagem removida com sucesso!");
               } else {
-                alert("Erro: " + data.message);
+                showNotification("Erro: " + data.message);
               }
             })
             .catch((error) => {
-              alert("Erro ao remover imagem: " + error);
+              showNotification("Erro ao remover imagem: " + error);
             });
         }
       });
@@ -538,17 +563,17 @@ document.addEventListener("DOMContentLoaded", function () {
       saveCarrosselEdit(id, formData)
         .then((data) => {
           if (data.success) {
-            alert("Imagem do carrossel atualizada com sucesso!");
+            showNotification("Imagem do carrossel atualizada com sucesso!");
             loadCarrosselImages(); // Isso agora só atualiza o grid
             closeModal();
           } else {
-            alert("Erro: " + data.message);
+            showNotification("Erro: " + data.message);
             this.disabled = false;
             this.innerHTML = "Salvar Alterações";
           }
         })
         .catch((error) => {
-          alert("Erro na requisição: " + error);
+          showNotification("Erro na requisição: " + error);
           this.disabled = false;
           this.innerHTML = "Salvar Alterações";
         });
@@ -565,15 +590,15 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert(`${type === "categoria" ? "Categoria" : "Coleção"} atualizada com sucesso!`);
+          showNotification(`${type === "categoria" ? "Categoria" : "Coleção"} atualizada com sucesso!`);
           if (type === "categoria") loadCategorias();
           else loadColecoes();
           closeModal();
         } else {
-          alert("Erro: " + data.message);
+          showNotification("Erro: " + data.message);
         }
       })
-      .catch(error => alert("Erro: " + error))
+      .catch(error => showNotification("Erro: " + error))
       .finally(() => {
         this.disabled = false;
         this.innerHTML = "Salvar Alterações";
@@ -581,7 +606,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       // Simular envio dos dados para outros tipos
       setTimeout(() => {
-        alert(
+        showNotification(
           `${
             type.charAt(0).toUpperCase() + type.slice(1)
           } ${id} atualizado com sucesso!`
@@ -599,61 +624,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Validação de formulários
-  const forms = document.querySelectorAll("form");
-
-  forms.forEach((form) => {
-    form.addEventListener("submit", function (e) {
-      const submitButton = this.querySelector('button[type="submit"]');
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Processando...';
-      }
-
-      // Aqui você pode adicionar a lógica para enviar os dados via AJAX
-      // Exemplo:
-      /*
-      fetch('processa_form.php', {
-        method: 'POST',
-        body: new FormData(this)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Operação realizada com sucesso!');
-          this.reset();
-          if (this.closest('.add-produto-form')) {
-            addProdutoForm.style.display = 'none';
-            addProdutoBtn.style.display = 'inline-flex';
-          }
-          if (this.closest('.add-cupom-form')) {
-            addCupomForm.style.display = 'none';
-            addCupomBtn.style.display = 'inline-flex';
-          }
-          // Recarregar dados se necessário
-        } else {
-          alert('Erro: ' + data.message);
-        }
-      })
-      .catch(error => {
-        alert('Erro na requisição: ' + error);
-      })
-      .finally(() => {
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.innerHTML = 'Salvar';
-        }
-      });
-      */
-
       // Temporário - apenas para demonstração
       setTimeout(() => {
         if (submitButton) {
           submitButton.disabled = false;
           submitButton.innerHTML = "Salvar";
         }
-        alert("Formulário enviado com sucesso!");
+        showNotification("Formulário enviado com sucesso!");
         this.reset();
 
         if (this.closest(".add-produto-form")) {
@@ -669,22 +646,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       e.preventDefault();
     });
-  });
 
-  // Ações de estoque
-  document.querySelectorAll(".estoque-actions .fa-plus").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const stockElement =
-        this.closest(".produto-estoque").querySelector("span");
-      let stock = parseInt(stockElement.textContent.replace("Estoque: ", ""));
-      stockElement.textContent = `Estoque: ${stock + 1}`;
-
-      // Aqui você pode adicionar uma chamada AJAX para atualizar no banco de dados
-      // Exemplo:
-      // const productId = this.closest('.produto-card').dataset.id;
-      // fetch(`atualiza_estoque.php?id=${productId}&action=increment`, { method: 'POST' });
-    });
-  });
 
   document.querySelectorAll(".estoque-actions .fa-minus").forEach((btn) => {
     btn.addEventListener("click", function () {
@@ -781,13 +743,13 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
               if (data.success) {
                 this.closest(".item-card").remove();
-                alert("Categoria removida com sucesso!");
+                showNotification("Categoria removida com sucesso!");
               } else {
-                alert("Erro: " + data.message);
+                showNotification("Erro: " + data.message);
               }
             })
             .catch(error => {
-              alert("Erro ao remover categoria: " + error);
+              showNotification("Erro ao remover categoria: " + error);
             });
         }
       });
@@ -815,13 +777,13 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
               if (data.success) {
                 this.closest(".item-card").remove();
-                alert("Coleção removida com sucesso!");
+                showNotification("Coleção removida com sucesso!");
               } else {
-                alert("Erro: " + data.message);
+                showNotification("Erro: " + data.message);
               }
             })
             .catch(error => {
-              alert("Erro ao remover coleção: " + error);
+              showNotification("Erro ao remover coleção: " + error);
             });
         }
       });
@@ -853,14 +815,14 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert("Categoria adicionada com sucesso!");
+        showNotification("Categoria adicionada com sucesso!");
         this.reset();
         loadCategorias();
       } else {
-        alert("Erro: " + data.message);
+        showNotification("Erro: " + data.message);
       }
     })
-    .catch(error => alert("Erro: " + error))
+    .catch(error => showNotification("Erro: " + error))
     .finally(() => {
       btn.disabled = false;
       btn.textContent = "Adicionar Categoria";
@@ -882,14 +844,14 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert("Coleção adicionada com sucesso!");
+        showNotification("Coleção adicionada com sucesso!");
         this.reset();
         loadColecoes();
       } else {
-        alert("Erro: " + data.message);
+        showNotification("Erro: " + data.message);
       }
     })
-    .catch(error => alert("Erro: " + error))
+    .catch(error => showNotification("Erro: " + error))
     .finally(() => {
       btn.disabled = false;
       btn.textContent = "Adicionar Coleção";
@@ -904,7 +866,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (document.getElementById("colecoes-grid")) {
     loadColecoes();
   }
-});
+
 
 // Manipula o botão voltar/avançar do navegador
 window.addEventListener("popstate", function () {

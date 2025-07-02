@@ -1,3 +1,33 @@
+function showNotification(message, type = "success") {
+  let container = document.getElementById('notification-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'notification-container';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '1000';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '10px';
+    container.style.maxWidth = '300px';
+    document.body.appendChild(container);
+  }
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+
+  container.appendChild(notification);
+
+  setTimeout(() => {
+    notification.classList.add('fade-out');
+    notification.addEventListener('animationend', () => {
+      notification.remove();
+    });
+  }, 3000);
+}
+
 $(document).ready(function() {
   function formatarData(dataStr) {
     if (!dataStr) return '';
@@ -46,18 +76,16 @@ $(document).ready(function() {
         dados.forEach(cupom => container.append(gerarCupomCard(cupom)));
       },
       error: function() {
-        alert('Erro ao carregar os cupons.');
+        showNotification('Erro ao carregar os cupons. ', 'error');
       }
     });
   }
 
-  // Resetar form de cupom
   function resetForm() {
     $('#cupomForm')[0].reset();
     $('#cupom-id').val('');
   }
 
-  // Preencher formulário para edição
   function preencherFormulario(cupom) {
     $('#cupom-id').val(cupom.idCupom);
     $('#cupom-codigo').val(cupom.codigo);
@@ -69,15 +97,14 @@ $(document).ready(function() {
     $('#cupom-descricao').val(cupom.descricaoCupom);
   }
 
-  // Envio do formulário criar/editar
   $('#cupomForm').on('submit', function(e) {
   e.preventDefault();
 
   const dados = {
     id: $('#cupom-id').val(),
     codigo: $('#cupom-codigo').val(),
-    porcentagemDesconto: parseFloat($('#cupom-desconto').val()), // nome correto esperado no PHP
-    tipoDesconto: $('#cupom-tipo').val(),                         // nome correto esperado no PHP
+    porcentagemDesconto: parseFloat($('#cupom-desconto').val()), 
+    tipoDesconto: $('#cupom-tipo').val(),                         
     dataValidade: $('#cupom-validade').val(),
     quantidadeUso: $('#cupom-usos').val(),
     valorCompraMin: parseFloat($('#cupom-limite').val()),
@@ -91,17 +118,17 @@ $(document).ready(function() {
     dataType: 'json',
     success: function(res) {
       if(res.status === 'success') {
-        alert(res.message);
+        showNotification(res.message, 'success');
         resetForm();
         carregarCupons();
         $('.add-cupom-form').hide();
         $('.add-cupom-btn').show();
       } else {
-        alert('Erro: ' + res.message);
+        showNotification('Erro: ' + res.message);
       }
     },
     error: function() {
-      alert('Erro no servidor ao salvar cupom.');
+      showNotification('Erro no servidor ao salvar cupom', 'error');
     }
   });
 });
@@ -121,7 +148,7 @@ $(document).ready(function() {
         $('#cupomForm')[0].scrollIntoView({ behavior: 'smooth' });
       },
       error: function() {
-        alert('Erro ao obter dados do cupom para edição.');
+        showNotification('Erro ao obter dados do cupom para edição.', 'error');
       }
     });
   });
@@ -136,14 +163,14 @@ $(document).ready(function() {
     dataType: 'json',
     success: function(res) {
       if(res.status === 'success') {
-        alert(res.message);
+        showNotification(res.message, 'success');
         carregarCupons(); // <- recarrega todos os cupons com status atualizado
       } else {
-        alert('Erro: ' + res.message);
+        showNotification('Erro: '+ res.message);
       }
     },
     error: function() {
-      alert('Erro ao trocar status do cupom.');
+      showNotification('Erro ao trocar status do cupom.');
     }
   });
 });

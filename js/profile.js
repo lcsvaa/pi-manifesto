@@ -1,3 +1,27 @@
+function showNotification(message, type = "success") {
+  let container = document.getElementById('notification-container');
+
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'notification-container';
+    document.body.appendChild(container);
+  }
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+
+  container.appendChild(notification);
+
+  // Aguarda 2.5s antes de iniciar fadeOut
+  setTimeout(() => {
+    notification.classList.add('fade-out');
+    notification.addEventListener('animationend', () => {
+      notification.remove();
+    });
+  }, 2500);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   // Elementos globais
   const addAddressBtn = document.getElementById("add-address-btn");
@@ -259,14 +283,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .addEventListener("click", loadAddresses);
   }
 });
-
-function showNotification(message, type = "success") {
-  const notification = document.createElement("div");
-  notification.className = `notification ${type}`;
-  notification.textContent = message;
-  document.body.appendChild(notification);
-  setTimeout(() => notification.remove(), 3000);
-}
 
 // Configuração do formulário de dados pessoais
 function setupPersonalDataForm() {

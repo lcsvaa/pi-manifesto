@@ -1,3 +1,33 @@
+function showNotification(message, type = "success") {
+  let container = document.getElementById('notification-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'notification-container';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '1000';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '10px';
+    container.style.maxWidth = '300px';
+    document.body.appendChild(container);
+  }
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+
+  container.appendChild(notification);
+
+  setTimeout(() => {
+    notification.classList.add('fade-out');
+    notification.addEventListener('animationend', () => {
+      notification.remove();
+    });
+  }, 3000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   
     btnAdd?.addEventListener("click", () => {
@@ -29,9 +59,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
           if (data.status === "ok") {
-            alert("Produto adicionado ao carrinho!");
+            showNotification("Produto adicionado ao carrinho!");
           } else {
-            alert("Erro ao adicionar ao carrinho.");
+            showNotification("Erro ao adicionar ao carrinho.");
           }
         });
     });
@@ -92,15 +122,17 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('mainImage').src = newImage;
   }
 
-  // Função para alterar quantidade (deixa global para usar inline)
-  window.changeQuantity = function(change) {
-    const input = document.getElementById('quantity');
-    let value = parseInt(input.value) + change;
-    if (value < 1) value = 1;
-    const max = parseInt(input.max) || 1000;
-    if (value > max) value = max;
-    input.value = value;
-  }
+
+window.changeQuantity = function(change) {
+  const input = document.getElementById('quantity');
+  const maxEstoque = parseInt(input.getAttribute('data-estoque')) || 1000;
+
+  let value = parseInt(input.value) + change;
+  if (value < 1) value = 1;
+  if (value > maxEstoque) value = maxEstoque;
+
+  input.value = value;
+}
 
   // Selecionar tamanho
   document.querySelectorAll('.size-btn').forEach(btn => {
@@ -110,10 +142,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Selecionar cor (se tiver)
-  document.querySelectorAll('.color-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
-      this.classList.add('selected');
-    });
-  });
