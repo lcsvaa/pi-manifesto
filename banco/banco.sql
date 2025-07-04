@@ -54,7 +54,8 @@ CREATE TABLE tb_produto (
 CREATE TABLE tb_imagem (
     idImagem INT PRIMARY KEY AUTO_INCREMENT,
     nomeImagem VARCHAR(80) NOT NULL DEFAULT 'Imagem',
-    statusImagem ENUM('inativa', 'ativa', 'principal') NOT NULL DEFAULT 'inativa'
+    statusImagem ENUM('inativa', 'ativa', 'principal') NOT NULL DEFAULT 'inativa',
+    linkImagem VARCHAR(255)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE tb_imagemProduto (
@@ -117,3 +118,8 @@ CREATE TABLE tb_novidades (
     imagemNovidade VARCHAR(180) NOT NULL,
     conteudo TEXT NOT NULL
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE tb_newsletter {
+    idNews INT PRIMARY KEY AUTO_INCREMENT,
+    emailNews VARCHAR(180) NOT NULL UNIQUE
+} DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
