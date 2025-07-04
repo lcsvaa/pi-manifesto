@@ -8,11 +8,11 @@ if (!$id) {
     exit;
 }
 
-// Buscar dados do produto
+// Buscar dados do produto com imagem principal (se houver)
 $stmt = $pdo->prepare("
-    SELECT p.*, c.ctgNome, co.colecaoNome, i.nomeImagem
+    SELECT p.*, c.ctgNome, co.colecaoNome, ip.nomeImagem
     FROM tb_produto p
-    LEFT JOIN tb_imagem i ON i.idProduto = p.id
+    LEFT JOIN tb_imagemProduto ip ON ip.idProduto = p.id AND ip.statusImagem = 'principal'
     LEFT JOIN tb_categoria c ON p.idCategoria = c.id
     LEFT JOIN tb_colecao co ON p.idColecao = co.id
     WHERE p.id = :id
@@ -27,11 +27,15 @@ if (!$produto) {
 }
 
 // Buscar imagens do produto para a galeria
-$stmtImgs = $pdo->prepare("SELECT nomeImagem FROM tb_imagemproduto WHERE idProduto = :idProduto ORDER BY statusImagem DESC");
+$stmtImgs = $pdo->prepare("
+    SELECT nomeImagem 
+    FROM tb_imagemProduto 
+    WHERE idProduto = :idProduto 
+    ORDER BY statusImagem DESC
+");
 $stmtImgs->bindParam(':idProduto', $id, PDO::PARAM_INT);
 $stmtImgs->execute();
 $imagens = $stmtImgs->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

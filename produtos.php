@@ -50,6 +50,11 @@ foreach ($produtos as $produto) {
 <body>
   <?php include_once "navbar.php" ?>
 
+  <div class="resultados-produtos" style="display: none;">
+        <p class="sem-resultados" style="display: none; color: #888; padding: 1rem;">Nenhum produto encontrado.</p>
+        <div id="lista-produtos"></div>
+  </div>
+
   <div class="banner">
     <h1>Produtos</h1>
   </div>

@@ -36,7 +36,6 @@ try {
         if (isset($_POST['idImagem'])) {
             // Atualização (pode ter ou não nova imagem)
             $status = $_POST['status'] ?? 'inativa';
-            $idProduto = !empty($_POST['idProduto']) ? $_POST['idProduto'] : null;
             
             if (!empty($_FILES['imagem']['tmp_name'])) {
                 // Tem nova imagem - fazer upload
@@ -66,8 +65,8 @@ try {
                     $oldImage = $stmt->fetch();
                     
                     // Atualiza no banco
-                    $stmt = $pdo->prepare("UPDATE tb_imagem SET nomeImagem = ?, statusImagem = ?, idProduto = ? WHERE idImagem = ?");
-                    $stmt->execute([$fileName, $status, $idProduto, $_POST['idImagem']]);
+                    $stmt = $pdo->prepare("UPDATE tb_imagem SET nomeImagem = ?, statusImagem = ? WHERE idImagem = ?");
+                    $stmt->execute([$fileName, $status, $_POST['idImagem']]);
                     
                     // Excluir arquivo físico antigo
                     if ($oldImage && file_exists($uploadDir . $oldImage['nomeImagem'])) {
@@ -80,8 +79,8 @@ try {
                 }
             } else {
                 // Atualização sem nova imagem
-                $stmt = $pdo->prepare("UPDATE tb_imagem SET statusImagem = ?, idProduto = ? WHERE idImagem = ?");
-                $stmt->execute([$status, $idProduto, $_POST['idImagem']]);
+                $stmt = $pdo->prepare("UPDATE tb_imagem SET statusImagem = ? WHERE idImagem = ?");
+                $stmt->execute([$status, $_POST['idImagem']]);
                 $response['success'] = true;
             }
         } elseif (!empty($_FILES['imagem']['tmp_name'])) {
@@ -107,10 +106,9 @@ try {
                 $response['message'] = 'O arquivo é muito grande (máximo 5MB)';
             } elseif (move_uploaded_file($_FILES['imagem']['tmp_name'], $targetFile)) {
                 $status = $_POST['status'] ?? 'inativa';
-                $idProduto = !empty($_POST['idProduto']) ? $_POST['idProduto'] : null;
                 
-                $stmt = $pdo->prepare("INSERT INTO tb_imagem (nomeImagem, statusImagem, idProduto) VALUES (?, ?, ?)");
-                $stmt->execute([$fileName, $status, $idProduto]);
+                $stmt = $pdo->prepare("INSERT INTO tb_imagem (nomeImagem, statusImagem) VALUES (?, ?)");
+                $stmt->execute([$fileName, $status]);
                 
                 $response['success'] = true;
             } else {

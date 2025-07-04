@@ -1,3 +1,6 @@
+<?php
+require_once 'conexao.php';
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -19,41 +22,40 @@
 
   <!-- Icone -->
   <link rel="icon" href="img/icone.png" type="image/png">
-
 </head>
 
 <body>
 
   <!-- NAVBAR -->
 
-  <?php include_once "navbar.php" ?>
+<?php include_once "navbar.php" ?>
+
+<div class="resultados-produtos" style="display: none;">
+  <p class="sem-resultados" style="display: none; color: #888; padding: 1rem;">Nenhum produto encontrado.</p>
+  <div id="lista-produtos"></div>
+</div>
+
 
   <!-- CARROSSEL -->
 <section class="carousel-section">
   <div class="carousel-wrapper">
     <div class="carousel" id="carousel">
       <?php
-      require_once 'conexao.php';
-      // Buscar imagens ativas ou principais, sem produto vinculado (ou com)
-      $imagens = $pdo->query("
-        SELECT i.*, p.nomeItem as produtoNome 
-        FROM tb_imagem i
-        LEFT JOIN tb_produto p ON i.idProduto = p.id
-        WHERE i.statusImagem IN ('ativa', 'principal') 
-        ORDER BY i.statusImagem DESC
-      ");
-      
-      foreach ($imagens as $img) {
-        echo '<div class="carousel-item">';
-        echo '<img src="uploads/carrossel/'.$img['nomeImagem'].'" alt="'.htmlspecialchars($img['produtoNome'] ?? 'Imagem do carrossel').'" />';
-        
-        if ($img['idProduto']) {
-          echo '<button class="buy-now" data-id="'.$img['idProduto'].'">Compre '.htmlspecialchars($img['produtoNome']).'</button>';
-        } else {
+        require_once 'conexao.php';
+
+        $imagens = $pdo->query("
+          SELECT idImagem, nomeImagem, statusImagem 
+          FROM tb_imagem 
+          WHERE statusImagem IN ('ativa', 'principal') 
+          ORDER BY statusImagem DESC
+        ");
+
+        foreach ($imagens as $img) {
+          echo '<div class="carousel-item">';
+          echo '<img src="uploads/carrossel/' . htmlspecialchars($img['nomeImagem']) . '" alt="Imagem do carrossel" />';
           echo '<button class="buy-now">Ver Mais</button>';
+          echo '</div>';
         }
-        echo '</div>';
-      }
       ?>
     </div>
     <div class="carousel-controls">
@@ -69,9 +71,7 @@
     <h2>Lançamentos</h2>
     <div class="produto-lista">
       <?php
-      require_once 'conexao.php';
 
-      // Buscar os produtos mais recentes, por exemplo
       $sql = "SELECT p.id, p.nomeItem, p.valorItem, i.nomeImagem 
               FROM tb_produto p 
               LEFT JOIN tb_imagemproduto i ON i.idProduto = p.id AND i.statusImagem = 'principal'
@@ -83,7 +83,9 @@
       while ($produto = $stmt->fetch(PDO::FETCH_ASSOC)) {
           $nome = htmlspecialchars($produto['nomeItem']);
           $preco = number_format($produto['valorItem'], 2, ',', '.');
-          $img = $produto['nomeImagem'] ? "uploads/produtos/" . $produto['nomeImagem'] : "img/default-product.png";
+          $img = isset($produto['nomeImagem']) && $produto['nomeImagem'] !== '' 
+                 ? "uploads/produtos/" . $produto['nomeImagem'] 
+                 : "img/default-product.png";
 
           echo '<div class="produto-card">';
           echo '<img src="' . $img . '" alt="' . $nome . '" />';
@@ -98,41 +100,57 @@
 </section>
 
   <!-- COLEÇÃO -->
-  <section class="colecao">
-    <div class="container">
-      <h2>Coleção X</h2>
-      <div class="produto-lista">
-        <div class="produto-card">
-          <img src="https://i.pinimg.com/736x/50/e2/7a/50e27a667474ceb55a260c860ace8926.jpg" alt="Jaqueta Destroyed" />
-          <h3>Jaqueta Destroyed</h3>
-          <p class="preco">R$ 299,90</p>
-          <button class="btn-comprar">Comprar</button>
-        </div>
-        <div class="produto-card">
-          <img src="https://i.pinimg.com/736x/c6/d8/5e/c6d85e4f5e6c01810783f4aedce6fced.jpg" alt="Moletom Capuz" />
-          <h3>Moletom Capuz</h3>
-          <p class="preco">R$ 229,90</p>
-          <button class="btn-comprar">Comprar</button>
-        </div>
-        <div class="produto-card">
-          <img src="https://i.pinimg.com/736x/32/a0/40/32a040284ec3caa9e781b291fae82374.jpg" alt="Tênis Skate" />
-          <h3>Tênis Skate</h3>
-          <p class="preco">R$ 349,90</p>
-          <button class="btn-comprar">Comprar</button>
+  <?php
+
+    // Buscar todas as coleções com seus produtos
+    $sql = "
+      SELECT 
+        co.id AS idColecao,
+        co.colecaoNome,
+        p.id AS idProduto,
+        p.nomeItem,
+        p.valorItem,
+        ip.nomeImagem
+      FROM tb_colecao co
+      JOIN tb_produto p ON p.idColecao = co.id
+      LEFT JOIN tb_imagemProduto ip ON ip.idProduto = p.id AND ip.statusImagem = 'principal'
+      ORDER BY co.colecaoNome, p.nomeItem
+    ";
+
+    $stmt = $pdo->query($sql);
+    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Agrupar produtos por coleção
+    $colecoes = array();
+    foreach ($resultados as $row) {
+        $colecoes[$row['colecaoNome']][] = $row;
+    }
+  ?>
+
+  <?php foreach ($colecoes as $nomeColecao => $produtos): ?>
+    <section class="colecao">
+      <div class="container">
+        <h2><?php echo htmlspecialchars($nomeColecao); ?></h2>
+        <div class="produto-lista">
+          <?php foreach ($produtos as $produto): ?>
+            <div class="produto-card">
+              <img src="uploads/produtos/<?php echo isset($produto['nomeImagem']) && $produto['nomeImagem'] !== '' ? htmlspecialchars($produto['nomeImagem']) : 'padrao.jpg'; ?>" alt="<?php echo htmlspecialchars($produto['nomeItem']); ?>" />
+              <h3><?php echo htmlspecialchars($produto['nomeItem']); ?></h3>
+              <p class="preco">R$ <?php echo number_format($produto['valorItem'], 2, ',', '.'); ?></p>
+              <a href="detalhes-produto.php?id=<?php echo $produto['idProduto']; ?>" class="btn-comprar">Comprar</a>
+            </div>
+          <?php endforeach; ?>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  <?php endforeach; ?>
 
   <!-- FOOTER -->
   <?php include_once "footer.php" ?>
 
   <!-- JavaScript -->
   <script src="js/script.js"></script>
-  <script> 
-    
 
-  </script>
 </body>
 
 </html>

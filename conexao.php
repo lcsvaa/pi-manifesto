@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db   = 'db_manifesto';
+$db   = 'senactito_db_manifesto';
 $user = 'root'; // altere se seu user for diferente
 $pass = '';     // altere se tiver senha
 $charset = 'utf8mb4';

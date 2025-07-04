@@ -9,8 +9,7 @@ try {
     $sql = "SELECT p.id, p.nomeItem, p.valorItem, p.estoqueItem, 
                    c.ctgNome AS categoria, 
                    col.colecaoNome AS colecao,
-                   img.nomeImagem AS imagem,
-                   p.statusProduto
+                   img.nomeImagem AS imagem
             FROM tb_produto p
             JOIN tb_categoria c ON p.idCategoria = c.id
             JOIN tb_colecao col ON p.idColecao = col.id

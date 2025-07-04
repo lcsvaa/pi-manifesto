@@ -604,7 +604,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.innerHTML = "Salvar Alterações";
       });
     } else {
-      // Simular envio dos dados para outros tipos
+     
       setTimeout(() => {
         showNotification(
           `${
@@ -613,38 +613,20 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         closeModal();
 
-        // Atualizar a interface conforme necessário
+       
         if (type === "produto") {
           const produtoCard = document
             .querySelector(`.produto-card h3:contains("${id}")`)
             ?.closest(".produto-card");
-          // Atualizar os dados no card do produto
+          
         }
       }, 1500);
     }
   }
 
-      // Temporário - apenas para demonstração
-      setTimeout(() => {
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.innerHTML = "Salvar";
-        }
-        showNotification("Formulário enviado com sucesso!");
-        this.reset();
+      
+      
 
-        if (this.closest(".add-produto-form")) {
-          addProdutoForm.style.display = "none";
-          addProdutoBtn.style.display = "inline-flex";
-        }
-
-        if (this.closest(".add-cupom-form")) {
-          addCupomForm.style.display = "none";
-          addCupomBtn.style.display = "inline-flex";
-        }
-      }, 1500);
-
-      e.preventDefault();
     });
 
 

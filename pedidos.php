@@ -19,6 +19,11 @@
     
     <?php include_once "navbar.php" ?>
 
+    <div class="resultados-produtos" style="display: none;">
+        <p class="sem-resultados" style="display: none; color: #888; padding: 1rem;">Nenhum produto encontrado.</p>
+        <div id="lista-produtos"></div>
+    </div>
+
     <!-- BANNER -->
     <div class="banner">
         <h1>Meus Pedidos</h1>

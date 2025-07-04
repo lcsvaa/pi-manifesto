@@ -1,4 +1,5 @@
 carregarProdutos();
+atualizarVisibilidade();
 
 $(document).on('click', '#edita-produto', function() {
   const idProduto = $(this).data('id');
@@ -280,3 +281,79 @@ function carregarProdutos() {
     }
   });
 }
+
+
+function atualizarVisibilidade() {
+  if ($('#produto-tamanho-unico').is(':checked')) {
+    $('#estoque-tamanhos-container').hide();
+    $('#msg-erro-estoque').hide();
+    // Opcional: zerar os inputs P, M, G ao esconder
+    $('#estoque-p, #estoque-m, #estoque-g').val(0);
+  } else {
+    $('#estoque-tamanhos-container').show();
+    validarSoma();
+  }
+}
+
+
+function validarSoma() {
+  const estoqueTotal = Number($('#produto-estoque').val()) || 0;
+  const soma = (Number($('#estoque-p').val()) || 0) + (Number($('#estoque-m').val()) || 0) + (Number($('#estoque-g').val()) || 0);
+
+  if (soma > estoqueTotal) {
+    $('#msg-erro-estoque').show();
+    return false;
+  } else {
+    $('#msg-erro-estoque').hide();
+    return true;
+  }
+}
+
+
+$(document).on('click', '#edita-produto', function() {
+  const idProduto = $(this).data('id');
+
+  $.ajax({
+    url: 'buscarProdutoId.php',
+    type: 'GET',
+    dataType: 'json',
+    data: { id: idProduto },
+    success: function(res) {
+      if (res.status === 'success') {
+        const produto = res.produto;
+
+        $('#produto-id').val(produto.id);
+        $('#produto-nome').val(produto.nomeItem);
+        $('#produto-descricao').val(produto.descItem);
+        $('#produto-preco').val(produto.valorItem);
+        $('#produto-estoque').val(produto.estoqueItem);
+        $('#produto-categoria-form').val(produto.idCategoria);
+        $('#produto-colecao').val(produto.idColecao);
+
+        $('#produto-tamanho-unico').prop('checked', produto.tamanhoUnico);
+
+        $('#estoque-p').val(produto.estoqueP || 0);
+        $('#estoque-m').val(produto.estoqueM || 0);
+        $('#estoque-g').val(produto.estoqueG || 0);
+
+        atualizarVisibilidade();
+
+        $('.add-produto-form').show();
+        $('#form-produto')[0].scrollIntoView({ behavior: 'smooth' });
+
+      } else {
+        alert('Erro: ' + res.message);
+      }
+    },
+    error: function() {
+      alert('Erro na requisição.');
+    }
+  });
+});
+
+$('#produto-tamanho-unico').on('change', atualizarVisibilidade);
+$('#estoque-p, #estoque-m, #estoque-g, #produto-estoque').on('input', function() {
+  if (!$('#produto-tamanho-unico').is(':checked')) {
+    validarSoma();
+  }
+});

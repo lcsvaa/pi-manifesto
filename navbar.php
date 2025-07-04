@@ -21,7 +21,7 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
 
         <div class="nav-right" id="nav-right">
-            <input type="text" class="search-bar" placeholder="Buscar produtos...">
+            <input type="text" class="search-bar" id="searchInput" placeholder="Buscar produtos...">
             <?php if(isset($_SESSION['user_id'])): ?>
                 <a href="profile.php" class="login-btn"><i class="fas fa-user-circle"></i> Perfil</a>
             <?php else: ?>
@@ -37,3 +37,38 @@ if (session_status() === PHP_SESSION_NONE) {
         </button>
     </div>
 </nav>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+  const $input = $('#searchInput');
+  const $container = $('.resultados-produtos');
+  const $mensagem = $('.sem-resultados');
+  const $lista = $('#lista-produtos');
+
+  $input.on('input', function () {
+    const termo = $input.val().trim();
+
+    if (termo === '') {
+      $container.hide();
+      $mensagem.hide();
+      $lista.empty();
+      return;
+    }
+
+    $.ajax({
+      url: 'buscar-produtos-pesquisa.php',
+      method: 'GET',
+      data: { termo: termo },
+      success: function (html) {
+        $container.show();
+        $lista.html(html);
+        $mensagem.toggle(html.trim() === '');
+      },
+      error: function () {
+        console.error('Erro ao buscar produtos.');
+      }
+    });
+  });
+});
+</script>

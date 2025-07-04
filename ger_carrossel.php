@@ -1,7 +1,8 @@
 <?php
 require_once 'conexao.php';
 
-$imagens = $pdo->query("SELECT * FROM tb_imagem WHERE idProduto IS NULL ORDER BY statusImagem DESC");
+// Consulta modificada para remover a condição WHERE idProduto IS NULL
+$imagens = $pdo->query("SELECT * FROM tb_imagem ORDER BY statusImagem DESC");
 
 foreach ($imagens as $img) {
   echo '
@@ -9,7 +10,6 @@ foreach ($imagens as $img) {
     <img src="uploads/carrossel/'.$img['nomeImagem'].'" alt="Imagem do carrossel">
     <div class="item-info">
       <span class="status-badge '.$img['statusImagem'].'">'.$img['statusImagem'].'</span>
-      '.(!empty($img['idProduto']) ? '<span class="product-link">Vinculado a produto</span>' : '').'
     </div>
     <div class="item-actions">
       <button class="btn-action editar" data-id="'.$img['idImagem'].'">

@@ -4,8 +4,7 @@ require 'conexao.php';
 
 try {
     $sql = "SELECT p.id, p.nomeItem, p.valorItem, p.estoqueItem, c.ctgNome as categoria, col.colecaoNome as colecao,
-                   img.nomeImagem as imagem,
-                   p.statusProduto
+                   img.nomeImagem as imagem
             FROM tb_produto p
             JOIN tb_categoria c ON p.idCategoria = c.id
             JOIN tb_colecao col ON p.idColecao = col.id

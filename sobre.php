@@ -28,6 +28,11 @@
   
   <?php include_once "navbar.php" ?>
 
+  <div class="resultados-produtos" style="display: none;">
+    <p class="sem-resultados" style="display: none; color: #888; padding: 1rem;">Nenhum produto encontrado.</p>
+    <div id="lista-produtos"></div>
+  </div>
+
   <!-- Seção Hero Sobre Nós -->
   <header class="sobre-header">
 

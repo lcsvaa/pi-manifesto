@@ -536,6 +536,13 @@ h4 { font-size: 1.25rem; }
   flex-wrap: wrap;
 }
 
+#tamanhoUnicoCheck {
+  display: flex;
+  margin: 2px;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* Abas de Conteúdo */
 .content-tabs {
   display: flex;

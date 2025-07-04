@@ -303,15 +303,14 @@ $page_title = "Painel Administrativo";
       <?php
       require_once 'conexao.php';
       // Buscar apenas imagens ativas ou principais
-      $imagens = $pdo->query("SELECT * FROM tb_imagem WHERE idProduto IS NULL AND statusImagem IN ('ativa', 'principal') ORDER BY statusImagem DESC");
-      
+      $imagens = $pdo->query("SELECT * FROM tb_imagem WHERE statusImagem IN ('ativa', 'principal') ORDER BY statusImagem DESC");
+
       foreach ($imagens as $img) {
         echo '
         <div class="item-card" data-id="'.$img['idImagem'].'">
           <img src="uploads/carrossel/'.$img['nomeImagem'].'" alt="Imagem do carrossel">
           <div class="item-info">
             <span class="status-badge '.$img['statusImagem'].'">'.$img['statusImagem'].'</span>
-            '.(!empty($img['idProduto']) ? '<span class="product-link">Vinculado a produto</span>' : '').'
           </div>
           <div class="item-actions">
             <button class="btn-action editar" data-id="'.$img['idImagem'].'">
@@ -602,57 +601,83 @@ $page_title = "Painel Administrativo";
         <div class="add-produto-form" style="display: none;">
           <h2><i class="fas fa-plus-circle"></i> Adicionar Novo Produto</h2>
           <form id="form-produto" enctype="multipart/form-data">
-            <input type="hidden" id="produto-id" name="id" value="">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="produto-nome">Nome do Produto:</label>
-                <input type="text" id="produto-nome" name="nomeItem" required>
+              <input type="hidden" id="produto-id" name="id" value="">
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="produto-nome">Nome do Produto:</label>
+                  <input type="text" id="produto-nome" name="nomeItem" required>
+                </div>
+                <div class="form-group">
+                  <label for="produto-categoria">Categoria:</label>
+                  <select class="admin-filter" id="produto-categoria-form" name="idCategoria" required>
+                    <option value="">Selecione</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="produto-colecao">Coleção:</label>
+                  <select id="produto-colecao" name="idColecao" required>
+                    <option value="">Selecione</option>
+                  </select>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="produto-categoria">Categoria:</label>
-                <select class="admin-filter" id="produto-categoria-form" name="idCategoria" required>
-                  <option value="">Selecione</option>
-                </select>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="produto-preco">Preço (R$):</label>
+                  <input type="number" id="produto-preco" name="valorItem" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                  <label for="produto-estoque">Estoque Inicial (total):</label>
+                  <input type="number" id="produto-estoque" name="estoqueItem" min="0" required>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="produto-colecao">Coleção:</label>
-                <select id="produto-colecao" name="idColecao" required>
-                  <option value="">Selecione</option>
-                </select>
+
+              <div class="form-group" id="tamanhoUnicoCheck">
+                <label for="tamanhoUnico">
+                  Produto tamanho único?
+                  <input type="checkbox" id="produto-tamanho-unico" name="tamanhoUnico">
+                </label>
               </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="produto-preco">Preço (R$):</label>
-                <input type="number" id="produto-preco" name="valorItem" step="0.01" min="0" required>
+              <div id="estoque-tamanhos-container" style="display:none; margin-bottom: 1rem;">
+                <div class="form-group">
+                  <label for="estoque-p">Estoque P:</label>
+                  <input type="number" id="estoque-p" name="estoqueP" min="0" value="0">
+                </div>
+                <div class="form-group">
+                  <label for="estoque-m">Estoque M:</label>
+                  <input type="number" id="estoque-m" name="estoqueM" min="0" value="0">
+                </div>
+                <div class="form-group">
+                  <label for="estoque-g">Estoque G:</label>
+                  <input type="number" id="estoque-g" name="estoqueG" min="0" value="0">
+                </div>
+                <p id="msg-erro-estoque" style="color:red; display:none; margin-top:0.5rem;">
+                  A soma dos estoques P, M e G não pode ser maior que o estoque total.
+                </p>
               </div>
+
               <div class="form-group">
-                <label for="produto-estoque">Estoque Inicial:</label>
-                <input type="number" id="produto-estoque" name="estoqueItem" min="0" required>
+                <label for="produto-descricao">Descrição:</label>
+                <textarea id="produto-descricao" name="descItem" rows="3" required></textarea>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="produto-descricao">Descrição:</label>
-              <textarea id="produto-descricao" name="descItem" rows="3" required></textarea>
-        </div>
+              <div class="form-group">
+                <label for="produto-imagem-principal">Imagem Principal:</label>
+                <input type="file" id="produto-imagem-principal" name="imagemPrincipal" accept="image/*" required>
+              </div>
 
-            <div class="form-group">
-              <label for="produto-imagem-principal">Imagem Principal:</label>
-              <input type="file" id="produto-imagem-principal" name="imagemPrincipal" accept="image/*" required>
-            </div>
+              <div class="form-group">
+                <label for="produto-outras-imagens">Outras Imagens:</label>
+                <input type="file" id="produto-outras-imagens" name="outrasImagens[]" accept="image/*" multiple>
+              </div>
 
-            <div class="form-group">
-              <label for="produto-outras-imagens">Outras Imagens:</label>
-              <input type="file" id="produto-outras-imagens" name="outrasImagens[]" accept="image/*" multiple>
-            </div>
-
-            <div class="form-buttons">
-              <button type="submit" class="btn-submit">Salvar Produto</button>
-              <button type="button" class="btn-cancel">Cancelar</button>
-            </div>
-          </form>
+              <div class="form-buttons">
+                <button type="submit" class="btn-submit">Salvar Produto</button>
+                <button type="button" class="btn-cancel">Cancelar</button>
+              </div>
+            </form>
         </div>
       </section>
 
