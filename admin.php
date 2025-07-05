@@ -18,7 +18,6 @@ if (isset($_SESSION['user_id'])) {
   unset($_SESSION['user_name']);
 }
 
-// Conexão com o banco de dados (se necessário)
 require_once 'conexao.php';
 
 // Definição do título da página (sem consulta ao banco pois não temos user_id para admin)
@@ -345,18 +344,12 @@ $page_title = "Painel Administrativo";
           </select>
         </div>
       </div>
+
       <div class="form-group">
-        <label for="carrossel-link">Link para produto (opcional):</label>
-        <select id="carrossel-link" name="idProduto">
-          <option value="">Nenhum</option>
-          <?php
-          $produtos = $pdo->query("SELECT id, nomeItem FROM tb_produto");
-          foreach ($produtos as $prod) {
-            echo '<option value="'.$prod['id'].'">'.$prod['nomeItem'].'</option>';
-          }
-          ?>
-        </select>
+        <label for="carrossel-link">Link da imagem (opcional):</label>
+        <input type="url" id="carrossel-link" name="link" placeholder="https://example.com">
       </div>
+
       <div class="form-buttons">
         <button type="submit" class="btn-submit">Adicionar Imagem</button>
       </div>

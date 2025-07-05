@@ -65,8 +65,9 @@ try {
                     $oldImage = $stmt->fetch();
                     
                     // Atualiza no banco
-                    $stmt = $pdo->prepare("UPDATE tb_imagem SET nomeImagem = ?, statusImagem = ? WHERE idImagem = ?");
-                    $stmt->execute([$fileName, $status, $_POST['idImagem']]);
+                    $link = $_POST['link'] ?? null;
+                    $stmt = $pdo->prepare("UPDATE tb_imagem SET nomeImagem = ?, statusImagem = ?, linkImagem = ? WHERE idImagem = ?");
+                    $stmt->execute([$fileName, $status, $link, $_POST['idImagem']]);
                     
                     // Excluir arquivo físico antigo
                     if ($oldImage && file_exists($uploadDir . $oldImage['nomeImagem'])) {
@@ -79,8 +80,9 @@ try {
                 }
             } else {
                 // Atualização sem nova imagem
-                $stmt = $pdo->prepare("UPDATE tb_imagem SET statusImagem = ? WHERE idImagem = ?");
-                $stmt->execute([$status, $_POST['idImagem']]);
+                $link = $_POST['link'] ?? null;
+                $stmt = $pdo->prepare("UPDATE tb_imagem SET statusImagem = ?, linkImagem = ? WHERE idImagem = ?");
+                $stmt->execute([$status, $link, $_POST['idImagem']]);
                 $response['success'] = true;
             }
         } elseif (!empty($_FILES['imagem']['tmp_name'])) {
@@ -107,8 +109,9 @@ try {
             } elseif (move_uploaded_file($_FILES['imagem']['tmp_name'], $targetFile)) {
                 $status = $_POST['status'] ?? 'inativa';
                 
-                $stmt = $pdo->prepare("INSERT INTO tb_imagem (nomeImagem, statusImagem) VALUES (?, ?)");
-                $stmt->execute([$fileName, $status]);
+                $link = $_POST['link'] ?? null;
+                $stmt = $pdo->prepare("INSERT INTO tb_imagem (nomeImagem, statusImagem, linkImagem) VALUES (?, ?, ?)");
+                $stmt->execute([$fileName, $status, $link]);
                 
                 $response['success'] = true;
             } else {

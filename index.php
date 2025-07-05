@@ -43,17 +43,12 @@ require_once 'conexao.php';
       <?php
         require_once 'conexao.php';
 
-        $imagens = $pdo->query("
-          SELECT idImagem, nomeImagem, statusImagem 
-          FROM tb_imagem 
-          WHERE statusImagem IN ('ativa', 'principal') 
-          ORDER BY statusImagem DESC
-        ");
+        $imagens = $pdo->query("SELECT * FROM tb_imagem WHERE statusImagem IN ('ativa', 'principal') ORDER BY statusImagem DESC");
 
         foreach ($imagens as $img) {
           echo '<div class="carousel-item">';
           echo '<img src="uploads/carrossel/' . htmlspecialchars($img['nomeImagem']) . '" alt="Imagem do carrossel" />';
-          echo '<button class="buy-now">Ver Mais</button>';
+          echo '<button class="buy-now"><a href='. htmlspecialchars($img['linkImagem']) .'>Ver Mais</a></button>';
           echo '</div>';
         }
       ?>
