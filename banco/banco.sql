@@ -140,7 +140,7 @@ CREATE TABLE tb_novidades (
   conteudo TEXT NOT NULL
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE tb_newsletter {
-    idNews INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE tb_newsletter (
+	idNews INT PRIMARY KEY AUTO_INCREMENT,
     emailNews VARCHAR(180) NOT NULL UNIQUE
-} DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
