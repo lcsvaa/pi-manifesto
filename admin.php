@@ -33,6 +33,7 @@ $page_title = "Painel Administrativo";
   <title>Painel Administrativo | Manifesto</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-novidades.css">
   <link rel="stylesheet" href="css/notificacao.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Fontes do Google -->
@@ -449,7 +450,7 @@ $page_title = "Painel Administrativo";
 
           <div class="current-items">
             <h3>Postagens Atuais</h3>
-            <div class="items-grid">
+            <!-- <div class="items-grid">
               <div class="item-card">
                 <img src="https://i.pinimg.com/736x/8e/cf/2d/8ecf2d139e5a08d19ea8a4767b23c165.jpg" alt="Postagem 1">
                 <div class="item-info">
@@ -461,29 +462,30 @@ $page_title = "Painel Administrativo";
                   <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
                 </div>
               </div>
-            </div>
+            </div> -->
+            <div id="novidades-grid"></div>
           </div>
 
           <div class="add-item-form">
             <h3>Adicionar Nova Postagem</h3>
-            <form>
+            <form id="form-novidade" action="api_novidades/adicionar_novidades.php" method="post" enctype="multipart/form-data">
               <div class="form-row">
                 <div class="form-group">
                   <label for="post-title">Título:</label>
-                  <input type="text" id="post-title" placeholder="Título da postagem">
+                  <input type="text" name="titulo" id="post-title" placeholder="Título da postagem">
                 </div>
                 <div class="form-group">
                   <label for="post-date">Data:</label>
-                  <input type="date" id="post-date">
+                  <input type="date" name="data" id="post-date">
                 </div>
               </div>
               <div class="form-group">
                 <label for="post-image">Imagem:</label>
-                <input type="file" id="post-image" accept="image/*">
+                <input type="file" name="imagem" id="post-image" accept="image/*">
               </div>
               <div class="form-group">
                 <label for="post-content">Conteúdo:</label>
-                <textarea id="post-content" rows="5" placeholder="Conteúdo da postagem"></textarea>
+                <textarea name="conteudo" id="post-content" rows="5" placeholder="Conteúdo da postagem"></textarea>
               </div>
               <div class="form-buttons">
                 <button type="submit" class="btn-submit">Publicar Postagem</button>
@@ -795,6 +797,7 @@ $page_title = "Painel Administrativo";
   <script src="js/produto.js"></script>
   <script src="js/categorias.js"></script>
   <script src="js/colecoes.js"></script>
+  <script src="js/admin-novidades.js" type="module"></script>
 </body>
 
 </html>

@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/card-novidades.css">
     <link rel="stylesheet" href="css/novidades.css">
     <link rel="icon" href="img/icone.png" type="image/png">
     <style>
@@ -104,11 +105,17 @@
         <h1>Novidades</h1>
     </div>
 
+    <div id="card-novidades-ryan"> 
+
+            <div id="novidades-grid"></div>
+            
+    </div>
+
     <!-- BLOG SECTION -->
     <div class="container">
         <div class="blog-container">
             <!-- Post 1 -->
-            <div class="blog-card">
+            <!-- <div class="blog-card">
                 <img src="https://i.pinimg.com/736x/8e/cf/2d/8ecf2d139e5a08d19ea8a4767b23c165.jpg" alt="Nova Coleção Outono/Inverno">
                 <div class="blog-content">
                     <div class="blog-date">15 MARÇO 2023</div>
@@ -116,10 +123,10 @@
                     <p class="blog-excerpt">Descubra as peças exclusivas que preparamos para a estação mais fria do ano, com materiais premium e designs inovadores.</p>
                     <a href="#" class="read-more" data-modal="modal1">Ler mais →</a>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Post 2 -->
-            <div class="blog-card">
+            <!-- <div class="blog-card">
                 <img src="https://i.pinimg.com/736x/74/e9/7c/74e97c55ce3a690b335c220f28f751b9.jpg" alt="Colaboração com Artista Local">
                 <div class="blog-content">
                     <div class="blog-date">28 FEVEREIRO 2023</div>
@@ -127,10 +134,10 @@
                     <p class="blog-excerpt">Nossa parceria com o renomado artista @streetartguy resulta em peças únicas com estampas limitadas.</p>
                     <a href="#" class="read-more" data-modal="modal2">Ler mais →</a>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Post 3 -->
-            <div class="blog-card">
+            <!-- <div class="blog-card">
                 <img src="img/loja.png" alt="Evento de Lançamento">
                 <div class="blog-content">
                     <div class="blog-date">10 FEVEREIRO 2023</div>
@@ -138,7 +145,7 @@
                     <p class="blog-excerpt">Confira como foi o nosso evento exclusivo para clientes selecionados, com desfile e drinks especiais.</p>
                     <a href="#" class="read-more" data-modal="modal3">Ler mais →</a>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <!-- NEWSLETTER SECTION -->
@@ -273,5 +280,6 @@
             });
         });
     </script>
+    <script src="js/novidades-public.js" type="module"></script>
 </body>
 </html>
