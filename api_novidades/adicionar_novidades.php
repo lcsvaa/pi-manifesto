@@ -2,7 +2,7 @@
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
-require_once '../conexao.php'; 
+require_once '../conexao.php';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,9 +25,16 @@ try {
         throw new RuntimeException('Tipo de imagem não permitido', 415);
     }
 
+    $destDir = __DIR__ . '/../uploads/novidades/';
+    if (!is_dir($destDir)) {
+        if (!mkdir($destDir, 0755, true) && !is_dir($destDir)) {
+            throw new RuntimeException('Falha ao criar a pasta de imagens', 500);
+        }
+    }
+
     $ext  = pathinfo($file['name'], PATHINFO_EXTENSION);
     $nome = uniqid('nov_', true) . '.' . $ext;
-    $dest = __DIR__ . '/../uploads/' . $nome;
+    $dest = $destDir . $nome;
 
     if (!move_uploaded_file($file['tmp_name'], $dest)) {
         throw new RuntimeException('Falha ao mover a imagem', 500);
@@ -37,10 +44,10 @@ try {
             VALUES (:titulo, :data, :imagem, :conteudo)';
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        ':titulo'  => $titulo,
-        ':data'    => $data,
-        ':imagem'  => $nome,
-        ':conteudo'=> $conteudo
+        ':titulo'   => $titulo,
+        ':data'     => $data,
+        ':imagem'   => $nome,
+        ':conteudo' => $conteudo
     ]);
 
     echo json_encode([

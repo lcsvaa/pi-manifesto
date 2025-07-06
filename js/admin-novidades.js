@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.className = 'item-card';
 
     card.innerHTML = `
-      <img src="uploads/${item.imagemNovidade}" alt="${item.titulo}">
+      <img src="uploads/novidades/${item.imagemNovidade}" alt="${item.titulo}">
       <div class="card-body">
         <h4>${item.titulo}</h4>
         <small class="item-date">${formatarDataParaTexto(item.dataNovidade)}</small>

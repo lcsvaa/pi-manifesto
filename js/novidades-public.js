@@ -29,7 +29,7 @@ function criarCard(p) {
   const modalId  = `modal-${p.idNovidade}`;
 
   card.innerHTML = `
-    <img src="uploads/${p.imagemNovidade}" alt="${p.titulo}" loading="lazy">
+    <img src="uploads/novidades/${p.imagemNovidade}" alt="${p.titulo}" loading="lazy">
     <div class="blog-content">
         <div class="blog-date">${formataData(p.dataNovidade)}</div>
         <h3 class="blog-title">${p.titulo}</h3>
@@ -50,7 +50,7 @@ function criarModal(p) {
     <div class="modal-content">
       <h2>${p.titulo}</h2>
       <span class="close-modal">&times;</span>
-      <img src="uploads/${p.imagemNovidade}" alt="${p.titulo}">
+      <img src="uploads/novidades/${p.imagemNovidade}" alt="${p.titulo}">
       <div class="blog-date">${formataData(p.dataNovidade)}</div>
       
       <p>${p.conteudo}</p>

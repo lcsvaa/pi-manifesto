@@ -65,9 +65,9 @@
   padding: 0;
 }
 
-  #lista-produto {
+  #lista-produtos {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
     margin: 2px 1px;
     padding: 5px;
     align-items: left;
@@ -108,7 +108,7 @@
   .navbar {
     background-color: var(--darker-bg);
     padding: 1rem 0;
-    position: sticky;
+    /* position: sticky; */
     top: 0;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
@@ -553,7 +553,7 @@
       bottom: 0;
       flex-direction: column;
       align-items: center;
-      padding-bottom: 3rem;
+      padding-bottom: 2rem;
     }
     
     .nav-links {

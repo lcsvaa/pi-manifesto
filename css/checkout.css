@@ -19,7 +19,7 @@
 .checkout-container {
     max-width: 1200px;
     margin: 3rem auto;
-    padding: 0 20px;
+    padding: 0 10px;
     display: flex;
     gap: 2rem;
     flex-wrap: wrap;
@@ -313,3 +313,30 @@
         border-bottom: 3px solid #e91e63;
     }
 }
+
+/* @media (max-width: 320px) {
+    
+
+    .banner h1 {
+        font-size: 2rem;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .payment-tabs {
+        flex-direction: column;
+    }
+    
+    .payment-tab {
+        padding: 0.8rem;
+        text-align: left;
+        border-bottom: 1px solid #333;
+    }
+    
+    .payment-tab.active {
+        border-bottom: 3px solid #e91e63;
+    }
+} */
