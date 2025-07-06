@@ -152,10 +152,11 @@
         <div class="newsletter-section">
             <h2 class="newsletter-title">Assine nossa newsletter</h2>
             <p class="newsletter-desc">Receba em primeira mão informações sobre novos lançamentos, coleções exclusivas e eventos especiais.</p>
-            <form class="newsletter-form">
-                <input type="email" class="newsletter-input" placeholder="Seu melhor e-mail" required>
+            <form class="newsletter-form" id="newsletter-form" action="newsletter/enviar-newsletter.php" method="POST">
+                <input type="email" name="email" class="newsletter-input" placeholder="Seu melhor e‑mail" required>
                 <button type="submit" class="newsletter-btn">Assinar</button>
             </form>
+            <p id="newsletter-feedback" class="newsletter-feedback"></p>
         </div>
     </div>
 
@@ -281,5 +282,6 @@
         });
     </script>
     <script src="js/novidades-public.js" type="module"></script>
+    <script src="js/newsletter-cadastro.js" type="module"></script>
 </body>
 </html>
