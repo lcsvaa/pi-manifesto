@@ -22,7 +22,6 @@ function showNotification(message, type = "success") {
   }, 2500);
 }
 
-
 document.addEventListener("DOMContentLoaded", function () {
   // Verifica a aba ativa a partir da URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -168,150 +167,133 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
- function loadCarrosselImages() {
-  fetch("ger_carrossel.php")
-    .then((response) => response.text())
-    .then((html) => {
-      // Atualiza apenas o grid de imagens, não todo o conteúdo
-      const grid = document.getElementById("carrossel-grid");
-      if (grid) {
-        grid.innerHTML = html;
-        setupCarrosselActions();
-      }
-    })
-    .catch(error => {
-      console.error('Erro ao carregar imagens:', error);
-    });
-} // Inicializar categorias e coleções
+  function loadCarrosselImages() {
+    fetch("ger_carrossel.php")
+      .then((response) => response.text())
+      .then((html) => {
+        // Atualiza apenas o grid de imagens, não todo o conteúdo
+        const grid = document.getElementById("carrossel-grid");
+        if (grid) {
+          grid.innerHTML = html;
+          setupCarrosselActions();
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar imagens:', error);
+      });
+  }
 
-  // Configura os eventos para os botões do carrossel
+  // Certifique-se que esta função está no seu admin.js
   function setupCarrosselActions() {
-    // Botões de remover
-    document.querySelectorAll(".item-actions .remover").forEach((btn) => {
-      btn.addEventListener("click", function () {
+    // Botões de edição
+    document.querySelectorAll(".btn-action.editar").forEach(btn => {
+      btn.addEventListener("click", function() {
         const id = this.getAttribute("data-id");
-        if (
-          confirm("Tem certeza que deseja remover esta imagem do carrossel?")
-        ) {
-          fetch("processa_carrossel.php?action=remove&id=" + id)
-            .then((response) => response.json())
-            .then((data) => {
+        openCarrosselEditModal(id);
+      });
+    });
+
+    // Botões de remoção (mantenha o existente)
+    document.querySelectorAll(".btn-action.remover").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const id = this.getAttribute("data-id");
+        if (confirm("Tem certeza que deseja remover esta imagem?")) {
+          fetch(`processa_carrossel.php?action=remove&id=${id}`)
+            .then(response => response.json())
+            .then(data => {
               if (data.success) {
-                this.closest(".item-card").remove();
                 showNotification("Imagem removida com sucesso!");
+                loadCarrosselImages();
               } else {
-                showNotification("Erro: " + data.message);
+                showNotification("Erro: " + data.message, "error");
               }
-            })
-            .catch((error) => {
-              showNotification("Erro ao remover imagem: " + error);
             });
         }
       });
     });
-
-    // Botões de editar
-    document.querySelectorAll(".item-actions .editar").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const id = this.getAttribute("data-id");
-        openEditModal("carrossel", id);
-      });
-    });
   }
 
-  // admin.js - Atualize a função saveCarrosselEdit
-  function saveCarrosselEdit(id, formData) {
-    formData.append("idImagem", id); // Adiciona o ID ao FormData
-
-    return fetch("processa_carrossel.php", {
-      // Remova o ?action=update&id= da URL
-      method: "POST",
-      body: formData,
-    }).then((response) => response.json());
-  }
-
-  // Inicializa os eventos quando a página carrega
-  if (document.getElementById("carrossel-grid")) {
-    setupCarrosselActions();
-  }
-
-  // =============================================
-  // FUNÇÕES DE EDIÇÃO
-  // =============================================
-
-  // Edição de clientes
-  document.querySelectorAll(".clientes-table .btn-view").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const userId = this.getAttribute("data-id");
-      openEditModal("cliente", userId);
-    });
-  });
-
-  // Edição de pedidos
-  document.querySelectorAll(".pedido-actions .editar").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const pedidoId =
-        this.closest(".pedido-card").querySelector(".pedido-id").textContent;
-      openEditModal("pedido", pedidoId.replace("#", ""));
-    });
-  });
-
-  // Edição de produtos
-  document.querySelectorAll(".produto-actions .editar").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const produtoId =
-        this.closest(".produto-card").querySelector("h3").textContent;
-      openEditModal("produto", produtoId);
-    });
-  });
-
-  // Edição de cupons
-  document.querySelectorAll(".cupom-actions .editar").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const cupomCodigo =
-        this.closest(".cupom-card").querySelector(".cupom-codigo").textContent;
-      openEditModal("cupom", cupomCodigo);
-    });
-  });
-
-  // Edição de itens de conteúdo
-  document.querySelectorAll(".item-actions .editar").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const itemId = this.closest(".item-card").querySelector("h4").textContent;
-      openEditModal("conteudo", itemId);
-    });
-  });
-
-  // Função para abrir modal de edição
-  function openEditModal(type, id, data = {}) {
-    // Criar o modal
+  function openCarrosselEditModal(id) {
+    // Modal de edição
     const modalHTML = `
-      <div class="modal-overlay">
+    <div class="modal-overlay">
         <div class="modal-content">
-          <div class="modal-header">
-            <h3>Editar ${type}: ${id}</h3>
-            <button class="btn-action close-modal"><i class="fas fa-times"></i></button>
-          </div>
-          <div class="modal-body">
-            ${getEditForm(type, id, data)}
-          </div>
-          <div class="modal-footer">
-            <button class="btn-cancel close-modal">Cancelar</button>
-            <button class="btn-submit save-edit" data-type="${type}" data-id="${id}">Salvar Alterações</button>
-          </div>
+            <div class="modal-header">
+                <h3>Editar Imagem do Carrossel</h3>
+                <button class="btn-action close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-carrossel-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Status da Imagem:</label>
+                        <select name="status" class="form-control" required>
+                            <option value="principal">Principal (Destaque)</option>
+                            <option value="ativa" selected>Ativa</option>
+                            <option value="inativa">Inativa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nova Imagem (opcional):</label>
+                        <input type="file" name="imagem" accept="image/*" class="form-control">
+                        <small>Formatos aceitos: JPG, PNG, GIF (máx. 5MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Link de redirecionamento (opcional):</label>
+                        <input type="url" name="link" placeholder="https://exemplo.com" class="form-control">
+                    </div>
+                    <input type="hidden" name="idImagem" value="${id}">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel close-modal">Cancelar</button>
+                <button class="btn-submit" id="save-carrossel-btn">Salvar Alterações</button>
+            </div>
         </div>
-      </div>
+    </div>
     `;
 
-    // Inserir o modal no DOM
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    // Adicionar eventos aos botões do modal
-    document.querySelectorAll(".close-modal").forEach((btn) => {
+    // Configurar eventos do modal
+    document.querySelectorAll(".close-modal").forEach(btn => {
       btn.addEventListener("click", closeModal);
     });
 
-    document.querySelector(".save-edit").addEventListener("click", saveEdit);
+    // Configurar envio do formulário
+    document.getElementById("save-carrossel-btn").addEventListener("click", function() {
+      saveCarrosselChanges(id);
+    });
+  }
+
+  function saveCarrosselChanges(id) {
+    const form = document.getElementById("edit-carrossel-form");
+    const formData = new FormData(form);
+    
+    const btn = document.getElementById("save-carrossel-btn");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+    fetch("processa_carrossel.php", {
+      method: "POST",
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification("Imagem atualizada com sucesso!");
+        loadCarrosselImages();
+        closeModal();
+      } else {
+        showNotification("Erro: " + data.message, "error");
+      }
+    })
+    .catch(error => {
+      showNotification("Erro na requisição: " + error, "error");
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = 'Salvar Alterações';
+    });
   }
 
   // Função para fechar o modal
@@ -495,34 +477,6 @@ document.addEventListener("DOMContentLoaded", function () {
           </form>
         `;
 
-      case "carrossel":
-        return `
-          <form class="edit-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Status:</label>
-                <select name="status">
-                  <option value="inativa">Inativa</option>
-                  <option value="ativa">Ativa</option>
-                  <option value="principal">Principal</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Link para produto:</label>
-                <select name="idProduto">
-                  <option value="">Nenhum</option>
-                  ${getProdutosOptions()}
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Nova Imagem (opcional):</label>
-              <input type="file" name="imagem" accept="image/*">
-              <small>Deixe em branco para manter a imagem atual</small>
-            </div>
-          </form>
-        `;
-
       case "categoria":
         return `
           <form class="edit-form">
@@ -548,8 +502,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-
-  // Modificar a função saveEdit para incluir o caso do carrossel
+  // Função para salvar edições
   function saveEdit() {
     const type = this.getAttribute("data-type");
     const id = this.getAttribute("data-id");
@@ -559,25 +512,7 @@ document.addEventListener("DOMContentLoaded", function () {
     this.disabled = true;
     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
 
-    if (type === "carrossel") {
-      saveCarrosselEdit(id, formData)
-        .then((data) => {
-          if (data.success) {
-            showNotification("Imagem do carrossel atualizada com sucesso!");
-            loadCarrosselImages(); // Isso agora só atualiza o grid
-            closeModal();
-          } else {
-            showNotification("Erro: " + data.message);
-            this.disabled = false;
-            this.innerHTML = "Salvar Alterações";
-          }
-        })
-        .catch((error) => {
-          showNotification("Erro na requisição: " + error);
-          this.disabled = false;
-          this.innerHTML = "Salvar Alterações";
-        });
-    } else if (type === "categoria" || type === "colecao") {
+    if (type === "categoria" || type === "colecao") {
       const endpoint = type === "categoria" ? "processa_categoria.php" : "processa_colecao.php";
       
       formData.append("id", id);
@@ -604,32 +539,60 @@ document.addEventListener("DOMContentLoaded", function () {
         this.innerHTML = "Salvar Alterações";
       });
     } else {
-     
+      // Simulação de salvamento para outros tipos
       setTimeout(() => {
         showNotification(
-          `${
-            type.charAt(0).toUpperCase() + type.slice(1)
-          } ${id} atualizado com sucesso!`
+          `${type.charAt(0).toUpperCase() + type.slice(1)} ${id} atualizado com sucesso!`
         );
         closeModal();
-
-       
-        if (type === "produto") {
-          const produtoCard = document
-            .querySelector(`.produto-card h3:contains("${id}")`)
-            ?.closest(".produto-card");
-          
-        }
       }, 1500);
     }
   }
 
-      
-      
-
+  // Edição de clientes
+  document.querySelectorAll(".clientes-table .btn-view").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const userId = this.getAttribute("data-id");
+      openEditModal("cliente", userId);
     });
+  });
 
+  // Edição de pedidos
+  document.querySelectorAll(".pedido-actions .editar").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const pedidoId =
+        this.closest(".pedido-card").querySelector(".pedido-id").textContent;
+      openEditModal("pedido", pedidoId.replace("#", ""));
+    });
+  });
 
+  // Edição de produtos
+  document.querySelectorAll(".produto-actions .editar").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const produtoId =
+        this.closest(".produto-card").querySelector("h3").textContent;
+      openEditModal("produto", produtoId);
+    });
+  });
+
+  // Edição de cupons
+  document.querySelectorAll(".cupom-actions .editar").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const cupomCodigo =
+        this.closest(".cupom-card").querySelector(".cupom-codigo").textContent;
+      openEditModal("cupom", cupomCodigo);
+    });
+  });
+
+  // Edição de itens de conteúdo
+  document.querySelectorAll(".item-actions .editar").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const itemId = this.closest(".item-card").querySelector("h4").textContent;
+      openEditModal("conteudo", itemId);
+    });
+  });
+
+  // Controle de estoque
   document.querySelectorAll(".estoque-actions .fa-minus").forEach((btn) => {
     btn.addEventListener("click", function () {
       const stockElement =
@@ -637,16 +600,11 @@ document.addEventListener("DOMContentLoaded", function () {
       let stock = parseInt(stockElement.textContent.replace("Estoque: ", ""));
       if (stock > 0) {
         stockElement.textContent = `Estoque: ${stock - 1}`;
-
-        // Aqui você pode adicionar uma chamada AJAX para atualizar no banco de dados
-        // Exemplo:
-        // const productId = this.closest('.produto-card').dataset.id;
-        // fetch(`atualiza_estoque.php?id=${productId}&action=decrement`, { method: 'POST' });
       }
     });
   });
 
-  // Filtro de clientes (se existir na página)
+  // Filtro de clientes
   const clientSearch = document.getElementById("client-search");
   const clientStatusFilter = document.getElementById("client-status-filter");
 
@@ -686,7 +644,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =============================================
-  // CÓDIGO ADICIONADO PARA CATEGORIAS E COLEÇÕES
+  // CÓDIGO PARA CATEGORIAS E COLEÇÕES
   // =============================================
 
   // Carregar categorias
@@ -849,23 +807,28 @@ document.addEventListener("DOMContentLoaded", function () {
     loadColecoes();
   }
 
-
-// Manipula o botão voltar/avançar do navegador
-window.addEventListener("popstate", function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const activeTab = urlParams.get("tab") || "pedidos";
-  document
-    .querySelectorAll(".category-tab")
-    .forEach((t) => t.classList.remove("active"));
-  document
-    .querySelectorAll(".admin-section")
-    .forEach((s) => s.classList.remove("active"));
-
-  const activeTabElement = document.querySelector(
-    `.category-tab[data-category="${activeTab}"]`
-  );
-  if (activeTabElement) {
-    activeTabElement.classList.add("active");
-    document.getElementById(`${activeTab}-section`).classList.add("active");
+  // Inicializa os eventos quando a página carrega
+  if (document.getElementById("carrossel-grid")) {
+    loadCarrosselImages();
   }
+
+  // Manipula o botão voltar/avançar do navegador
+  window.addEventListener("popstate", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get("tab") || "pedidos";
+    document
+      .querySelectorAll(".category-tab")
+      .forEach((t) => t.classList.remove("active"));
+    document
+      .querySelectorAll(".admin-section")
+      .forEach((s) => s.classList.remove("active"));
+
+    const activeTabElement = document.querySelector(
+      `.category-tab[data-category="${activeTab}"]`
+    );
+    if (activeTabElement) {
+      activeTabElement.classList.add("active");
+      document.getElementById(`${activeTab}-section`).classList.add("active");
+    }
+  });
 });
