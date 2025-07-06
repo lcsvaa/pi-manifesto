@@ -1,25 +1,33 @@
 <?php
+require_once 'conexao.php';
 header('Content-Type: application/json');
-require 'conexao.php';
 
 try {
-    $sql = "SELECT p.id, p.nomeItem, p.valorItem, p.estoqueItem, c.ctgNome as categoria, col.colecaoNome as colecao,
-                   img.nomeImagem as imagem
-            FROM tb_produto p
-            JOIN tb_categoria c ON p.idCategoria = c.id
-            JOIN tb_colecao col ON p.idColecao = col.id
-            LEFT JOIN tb_imagemProduto img ON img.idProduto = p.id AND img.statusImagem = 'principal'
-            ORDER BY p.nomeItem";
-    $stmt = $pdo->query($sql);
+    $stmt = $pdo->query("
+        SELECT 
+            p.id, p.nomeItem, p.valorItem, p.estoqueItem,
+            c.ctgNome AS categoria,
+            co.colecaoNome AS colecao,
+            img.nomeImagem AS imagem
+        FROM tb_produto p
+        JOIN tb_categoria c ON p.idCategoria = c.id
+        JOIN tb_colecao co ON p.idColecao = co.id
+        LEFT JOIN tb_imagemProduto img ON img.idProduto = p.id AND img.statusImagem = 'principal'
+        ORDER BY p.nomeItem
+    ");
+
     $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    foreach ($produtos as &$prod) {
-        if (!isset($prod['statusProduto']) || $prod['statusProduto'] === null) {
-            $prod['statusProduto'] = 'ativo'; 
-        }
+    foreach ($produtos as &$produto) {
+        $stmtTamanhos = $pdo->prepare("SELECT tamanho, estoque FROM tb_produto_tamanho WHERE idProduto = ?");
+        $stmtTamanhos->execute([$produto['id']]);
+        $estoquesTamanhos = $stmtTamanhos->fetchAll(PDO::FETCH_ASSOC);
+
+        $produto['estoquesTamanhos'] = $estoquesTamanhos;
     }
 
     echo json_encode(['status' => 'success', 'produtos' => $produtos]);
-} catch (Exception $e) {
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+
+} catch (PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Erro: ' . $e->getMessage()]);
 }

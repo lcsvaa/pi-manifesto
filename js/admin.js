@@ -1,9 +1,17 @@
+// Função de notificação
 function showNotification(message, type = "success") {
   let container = document.getElementById('notification-container');
-
   if (!container) {
     container = document.createElement('div');
     container.id = 'notification-container';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '1000';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '10px';
+    container.style.maxWidth = '300px';
     document.body.appendChild(container);
   }
 
@@ -13,13 +21,58 @@ function showNotification(message, type = "success") {
 
   container.appendChild(notification);
 
-  // Aguarda 2.5s antes de iniciar fadeOut
+  // Remove a notificação após 3 segundos com animação
   setTimeout(() => {
     notification.classList.add('fade-out');
     notification.addEventListener('animationend', () => {
       notification.remove();
     });
-  }, 2500);
+  }, 3000);
+}
+
+
+function adicionarEstilosNotificacao() {
+  const style = document.createElement('style');
+  style.textContent = `
+    #notification-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 300px;
+    }
+    .notification {
+      padding: 15px;
+      border-radius: 5px;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: slideIn 0.3s ease-out;
+      position: relative;
+    }
+    .notification.success {
+      background-color: #4CAF50;
+    }
+    .notification.error {
+      background-color: #F44336;
+    }
+    .notification.warning {
+      background-color: #FF9800;
+    }
+    .fade-out {
+      animation: fadeOut 0.5s ease-out forwards;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 
@@ -93,23 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Formulário de adicionar produto
-  const addProdutoBtn = document.querySelector(".add-produto-btn");
-  const addProdutoForm = document.querySelector(".add-produto-form");
-
-  if (addProdutoBtn && addProdutoForm) {
-    addProdutoBtn.addEventListener("click", function () {
-      addProdutoForm.style.display = "block";
-      this.style.display = "none";
-      addProdutoForm.scrollIntoView({ behavior: "smooth" });
-    });
-
-    const cancelProdutoBtn = addProdutoForm.querySelector(".btn-cancel");
-    cancelProdutoBtn.addEventListener("click", function () {
-      addProdutoForm.style.display = "none";
-      addProdutoBtn.style.display = "inline-flex";
-    });
-  }
 
   // Formulário de adicionar cupom
   const addCupomBtn = document.querySelector(".add-cupom-btn");

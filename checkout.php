@@ -27,8 +27,16 @@
         <!-- Formulário de Entrega e Pagamento -->
         <div class="checkout-form">
             <h2 class="checkout-title">Informações de Entrega</h2>
+
+            <div class="endereco-group">
+                <h2 class="checkout-title">Selecione um Endereço de Entrega</h2>
+                    <div class="shipping-methods" id="enderecos-container"></div>
+                <button type="button" id="btn-novo-endereco" class="checkout-btn" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> Usar Novo Endereço
+                </button>
+            </div>
             
-            <form id="delivery-form">
+            <form id="delivery-form" style="display: none;">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nome">Nome Completo</label>
@@ -88,6 +96,7 @@
                             <option value="SP">São Paulo</option>
                         </select>
                     </div>
+                    </form>
                 </div>
                 
                 <h2 class="checkout-title">Método de Envio</h2>

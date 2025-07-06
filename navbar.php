@@ -38,6 +38,11 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
 </nav>
 
+<div class="resultados-produtos" style="display: none;">
+        <p class="sem-resultados" style="display: none; color: #888; padding: 1rem;">Nenhum produto encontrado.</p>
+        <div id="lista-produtos"></div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function () {

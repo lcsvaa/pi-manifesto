@@ -2,12 +2,20 @@
 session_start();
 header('Content-Type: application/json');
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 $subtotal = 0;
 $desconto = 0;
-
+$frete = 0;
 
 foreach ($_SESSION['carrinho'] ?? [] as $item) {
     $subtotal += $item['preco'] * $item['qtd'];
+}
+
+if (!empty($_SESSION['carrinho'])) {
+    $frete = 18.90;
 }
 
 if (isset($_SESSION['cupom'])) {
@@ -27,11 +35,9 @@ if (isset($_SESSION['cupom'])) {
 
 $total = $subtotal + $frete - $desconto;
 
-
 function formatarPreco($valor) {
     return number_format($valor, 2, ',', '.');
 }
-
 
 echo json_encode([
     'subtotal' => formatarPreco($subtotal),

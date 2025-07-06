@@ -35,6 +35,7 @@ $page_title = "Painel Administrativo";
   <link rel="stylesheet" href="css/admin-novidades.css">
   <link rel="stylesheet" href="css/notificacao.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://unpkg.com/imask"></script>
   <!-- Fontes do Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -357,86 +358,6 @@ $page_title = "Painel Administrativo";
   </div>
 </div>
 
-        <!-- Subseção Lançamentos -->
-        <div class="content-panel" id="lancamentos-panel">
-          <h2><i class="fas fa-star"></i> Gerenciar Lançamentos</h2>
-
-          <div class="current-items">
-            <h3>Produtos em Destaque</h3>
-            <div class="items-grid">
-              <div class="item-card">
-                <img src="img/produto10.png" alt="Camiseta Oversized">
-                <div class="item-info">
-                  <h4>Camiseta Oversized</h4>
-                  <p>R$ 129,90</p>
-                </div>
-                <div class="item-actions">
-                  <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-                  <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="add-item-form">
-            <h3>Adicionar Produto</h3>
-            <form>
-              <div class="form-group">
-                <label for="lancamento-produto">Selecionar Produto:</label>
-                <select id="lancamento-produto">
-                  <option>Selecione um produto</option>
-                  <option>Camiseta Premium</option>
-                  <option>Calça Jogger</option>
-                  <option>Boné Snapback</option>
-                </select>
-              </div>
-              <div class="form-buttons">
-                <button type="submit" class="btn-submit">Adicionar à Seção</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- Subseção Coleção X -->
-        <div class="content-panel" id="colecao-panel">
-          <h2><i class="fas fa-star"></i> Gerenciar Coleção X</h2>
-
-          <div class="current-items">
-            <h3>Produtos em Destaque</h3>
-            <div class="items-grid">
-              <div class="item-card">
-                <img src="img/produto10.png" alt="Camiseta Oversized">
-                <div class="item-info">
-                  <h4>Camiseta Oversized</h4>
-                  <p>R$ 129,90</p>
-                </div>
-                <div class="item-actions">
-                  <button class="btn-action editar"><i class="fas fa-edit"></i> Editar</button>
-                  <button class="btn-action remover"><i class="fas fa-trash"></i> Remover</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="add-item-form">
-            <h3>Adicionar Produto</h3>
-            <form>
-              <div class="form-group">
-                <label for="colecao-produto">Selecionar Produto:</label>
-                <select id="colecao-produto">
-                  <option>Selecione um produto</option>
-                  <option>Camiseta Premium</option>
-                  <option>Calça Jogger</option>
-                  <option>Boné Snapback</option>
-                </select>
-              </div>
-              <div class="form-buttons">
-                <button type="submit" class="btn-submit">Adicionar à Seção</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
         <!-- Subseção Novidades -->
         <div class="content-panel" id="novidades-panel">
           <h2><i class="fas fa-newspaper"></i> Gerenciar Novidades</h2>
@@ -576,12 +497,11 @@ $page_title = "Painel Administrativo";
 </div>
 
       <!-- Seção Produtos -->
-      <!-- Seção Produtos -->
       <section class="admin-section" id="produtos-section">
         <h1 class="section-title"><i class="fas fa-tshirt"></i> Gerenciamento de Produtos</h1>
 
         <div class="section-actions">
-          <button class="btn-action add-produto-btn"><i class="fas fa-plus"></i> Adicionar Novo Produto</button>
+          <button class="btn-action add-produto-btn" id="btn-novo-produto"><i class="fas fa-plus"></i> Adicionar Novo Produto</button>
           <div class="search-filter">
             <input type="text" placeholder="Buscar produto por nome..." class="admin-search" id="busca-produto-adm">
             <select class="admin-filter" id="produto-categoria" name="idCategoria">
@@ -620,7 +540,7 @@ $page_title = "Painel Administrativo";
               <div class="form-row">
                 <div class="form-group">
                   <label for="produto-preco">Preço (R$):</label>
-                  <input type="number" id="produto-preco" name="valorItem" step="0.01" min="0" required>
+                  <input type="text" id="produto-preco" name="valorItem" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
                   <label for="produto-estoque">Estoque Inicial (total):</label>
@@ -649,9 +569,10 @@ $page_title = "Painel Administrativo";
                   <input type="number" id="estoque-g" name="estoqueG" min="0" value="0">
                 </div>
                 <p id="msg-erro-estoque" style="color:red; display:none; margin-top:0.5rem;">
-                  A soma dos estoques P, M e G não pode ser maior que o estoque total.
+                  O estoque dos tamanhos deve ser igual ao estoque total de produtos
                 </p>
               </div>
+
 
               <div class="form-group">
                 <label for="produto-descricao">Descrição:</label>
@@ -660,7 +581,7 @@ $page_title = "Painel Administrativo";
 
               <div class="form-group">
                 <label for="produto-imagem-principal">Imagem Principal:</label>
-                <input type="file" id="produto-imagem-principal" name="imagemPrincipal" accept="image/*" required>
+                <input type="file" id="produto-imagem-principal" name="imagemPrincipal" accept="image/*" >
               </div>
 
               <div class="form-group">
@@ -784,13 +705,32 @@ $page_title = "Painel Administrativo";
   </div>
 
   <!-- JavaScript -->
-  <script src="auth-check.js"></script>
+  <!-- <script src="auth-check.js"></script> -->
   <script src="js/admin.js"></script>
   <script src="js/cupom.js"></script>
   <script src="js/produto.js"></script>
   <script src="js/categorias.js"></script>
   <script src="js/colecoes.js"></script>
   <script src="js/admin-novidades.js" type="module"></script>
+  <script>
+    const precoInput = document.getElementById('produto-preco');
+
+    IMask(precoInput, {
+      mask: 'R$ num',
+      blocks: {
+        num: {
+          mask: Number,
+          thousandsSeparator: '.',
+          radix: ',',
+          scale: 2,
+          padFractionalZeros: true,
+          signed: false,
+          mapToRadix: ['.']
+        }
+      }
+    });
+  </script>
+
 </body>
 
 </html>

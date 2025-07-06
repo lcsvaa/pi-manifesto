@@ -17,14 +17,18 @@ function showNotification(message, type = "success") {
   const notification = document.createElement('div');
   notification.className = `notification ${type}`;
   notification.textContent = message;
+  notification.style.opacity = '1';
+  notification.style.transition = 'opacity 0.5s, transform 0.5s';
 
   container.appendChild(notification);
 
+  // Remove a notificação após 3 segundos com animação
   setTimeout(() => {
-    notification.classList.add('fade-out');
-    notification.addEventListener('animationend', () => {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateX(100%)';
+    setTimeout(() => {
       notification.remove();
-    });
+    }, 500);
   }, 3000);
 }
 

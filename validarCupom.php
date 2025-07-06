@@ -28,7 +28,6 @@ if (!isset($_SESSION['user_id'])) {
 $idUsuario = $_SESSION['user_id'];
 $idCupom = $cupom['idCupom'];
 
-
 $verificaUso = $pdo->prepare("
     SELECT COUNT(*) FROM tb_compra
     WHERE idUsuario = :idUsuario AND idCupom = :idCupom
@@ -43,7 +42,6 @@ if ($jaUsou > 0) {
     exit;
 }
 
-
 $subtotal = 0;
 foreach ($_SESSION['carrinho'] ?? [] as $item) {
     $subtotal += $item['preco'] * $item['qtd'];
@@ -57,23 +55,24 @@ if ($subtotal < $cupom['valorCompraMin']) {
     exit;
 }
 
-
 if ($cupom['quantidadeUso'] > 0 && $cupom['utilizados'] >= $cupom['quantidadeUso']) {
     echo json_encode(['status' => 'error', 'msg' => 'Este cupom já atingiu o número máximo de usos.']);
     exit;
 }
 
-
 $_SESSION['cupom'] = [
     'codigo' => $cupom['codigo'],
-    'porcentagem' => $cupom['porcentagemDesconto'],
-    'tipoCupom' => $cupom['tipoCupom'],
+    'tipo' => $cupom['tipoCupom'],       // 'valor' ou 'porcentagem'
+    'valor' => floatval($cupom['porcentagemDesconto']),
     'descricao' => $cupom['descricaoCupom'] ?? '',
     'id' => $cupom['idCupom']
 ];
 
 echo json_encode([
+    'status' => 'ok',
     'msg' => $cupom['tipoCupom'] === 'porcentagem'
-    ? "Cupom aplicado com sucesso! Desconto de {$cupom['porcentagemDesconto']}%."
-    : "Cupom aplicado com sucesso! Desconto de R$ " . number_format($cupom['porcentagemDesconto'], 2, ',', '.') . "."
+        ? "Cupom aplicado com sucesso! Desconto de {$cupom['porcentagemDesconto']}%."
+        : "Cupom aplicado com sucesso! Desconto de R$ " . number_format($cupom['porcentagemDesconto'], 2, ',', '.') . ".",
+    'tipo' => $cupom['tipoCupom'],
+    'valor' => floatval($cupom['porcentagemDesconto'])
 ]);

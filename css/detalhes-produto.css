@@ -192,6 +192,20 @@
       padding-top: 20px;
       border-top: 1px solid #eee;
     }
+
+    .estoque-baixo-msg {
+    color: red;
+    font-weight: bold;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    margin-top: 5px;
+  }
+
+  .estoque-baixo-msg.visible {
+    opacity: 1;
+    visibility: visible;
+  }
     
     /* Responsividade */
     @media (max-width: 992px) {

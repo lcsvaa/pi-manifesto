@@ -17,6 +17,7 @@
         }
 
     .filtros-container {
+      display: flex;
       background-color: #161616;
       padding: 20px 0;
       margin-bottom: 30px;
