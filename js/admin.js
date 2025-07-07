@@ -593,14 +593,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Edição de pedidos
-  document.querySelectorAll(".pedido-actions .editar").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const pedidoId =
-        this.closest(".pedido-card").querySelector(".pedido-id").textContent;
-      openEditModal("pedido", pedidoId.replace("#", ""));
-    });
-  });
+
 
   // Edição de produtos
   document.querySelectorAll(".produto-actions .editar").forEach((btn) => {

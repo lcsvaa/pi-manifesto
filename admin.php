@@ -1,4 +1,6 @@
 <?php
+
+require_once 'conexao.php';
 // Inicia a sessão de forma segura
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
@@ -18,9 +20,6 @@ if (isset($_SESSION['user_id'])) {
   unset($_SESSION['user_name']);
 }
 
-require_once 'conexao.php';
-
-// Definição do título da página (sem consulta ao banco pois não temos user_id para admin)
 $page_title = "Painel Administrativo";
 ?>
 <!DOCTYPE html>
@@ -208,79 +207,151 @@ $page_title = "Painel Administrativo";
       </section>
 
 
-      <!-- Seção Pedidos -->
-      <section class="admin-section" id="pedidos-section">
-        <h1 class="section-title"><i class="fas fa-shopping-bag"></i> Gerenciamento de Pedidos</h1>
+<?php
 
-        <div class="section-actions">
-          <div class="search-filter">
-            <input type="text" placeholder="Buscar pedido..." class="admin-search">
-            <select class="admin-filter">
-              <option>Todos os status</option>
-              <option>Pendente</option>
-              <option>Processando</option>
-              <option>Enviado</option>
-              <option>Entregue</option>
-              <option>Cancelado</option>
-            </select>
-          </div>
+$pedidos = $pdo->query("
+  SELECT 
+    c.id AS idCompra, 
+    c.dataCompra, 
+    c.statusCompra, 
+    c.valorTotal, 
+    u.id AS idUsuario,
+    u.nomeUser, 
+    u.email
+  FROM tb_compra c
+  JOIN tb_usuario u ON c.idUsuario = u.id
+  ORDER BY 
+    FIELD(c.statusCompra, 'Processando pagamento', 'Pago', 'Preparando pra enviar', 'Enviado', 'Recebido', 'Cancelado'),
+    c.dataCompra DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<section class="admin-section" id="pedidos-section">
+  <h1 class="section-title"><i class="fas fa-shopping-bag"></i> Gerenciamento de Pedidos</h1>
+
+  <div class="section-actions">
+    <div class="search-filter">
+      <input type="text" placeholder="Buscar pedido..." class="admin-search">
+      <select class="admin-filter">
+        <option value="">Todos os status</option>
+        <option value="Processando pagamento">Processando pagamento</option>
+        <option value="Pago">Pago</option>
+        <option value="Preparando pra enviar">Preparando pra enviar</option>
+        <option value="Enviado">Enviado</option>
+        <option value="Recebido">Recebido</option>
+        <option value="Cancelado">Cancelado</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="pedidos-list">
+  <?php foreach ($pedidos as $pedido): ?>
+    <?php
+      // Buscar produtos do pedido
+      $itens = $pdo->prepare("
+        SELECT p.nomeItem, ic.valorUnitario, ic.quantidade, ic.tamanho
+        FROM tb_itemCompra ic
+        JOIN tb_produto p ON ic.idProduto = p.id
+        WHERE ic.idCompra = ?
+      ");
+      $itens->execute([$pedido['idCompra']]);
+      $produtos = $itens->fetchAll(PDO::FETCH_ASSOC);
+
+      // Buscar endereço pelo idUsuario
+      $enderecoStmt = $pdo->prepare("
+        SELECT rua, numero, complemento, bairro, cidade, cep
+        FROM tb_endereco
+        WHERE idUsuario = ?
+        ORDER BY idEndereco DESC
+        LIMIT 1
+      ");
+      $enderecoStmt->execute([$pedido['idUsuario']]);
+      $endereco = $enderecoStmt->fetch(PDO::FETCH_ASSOC);
+
+      // Classes de status para estilos CSS
+      $statusClass = match($pedido['statusCompra']) {
+        'Processando pagamento' => 'pending',
+        'Pago' => 'processing',
+        'Preparando pra enviar' => 'processing',
+        'Enviado' => 'shipped',
+        'Recebido' => 'delivered',
+        'Cancelado' => 'cancelled',
+        default => '',
+      };
+
+      $dataFormatada = date('d/m/Y', strtotime($pedido['dataCompra']));
+      $codigoPedido = sprintf('#PED-%05d', $pedido['idCompra']);
+    ?>
+
+    <div class="pedido-card">
+      <div class="pedido-header">
+        <span class="pedido-id"><?= $codigoPedido ?></span>
+        <span class="pedido-status <?= $statusClass ?>"><?= htmlspecialchars($pedido['statusCompra']) ?></span>
+        <span class="pedido-date"><?= $dataFormatada ?></span>
+        <span class="pedido-total">R$ <?= number_format($pedido['valorTotal'], 2, ',', '.') ?></span>
+      </div>
+
+      <div class="pedido-details">
+        <div class="pedido-cliente">
+          <p><strong>Cliente:</strong> <?= htmlspecialchars($pedido['nomeUser']) ?></p>
+          <p><strong>E-mail:</strong> <?= htmlspecialchars($pedido['email']) ?></p>
         </div>
 
-        <div class="pedidos-list">
-          <div class="pedido-card">
-            <div class="pedido-header">
-              <span class="pedido-id">#ORD-2023-001</span>
-              <span class="pedido-status pending">Pendente</span>
-              <span class="pedido-date">15/05/2023</span>
-              <span class="pedido-total">R$ 429,80</span>
-            </div>
-            <div class="pedido-details">
-              <div class="pedido-cliente">
-                <p><strong>Cliente:</strong> João Silva</p>
-                <p><strong>E-mail:</strong> joao@exemplo.com</p>
-              </div>
-              <div class="pedido-produtos">
-                <p><strong>Produtos:</strong></p>
-                <ul>
-                  <li>Camiseta Oversized (R$ 129,90) - Tamanho: M</li>
-                  <li>Calça Jogger (R$ 189,90) - Tamanho: 42</li>
-                  <li>Boné Snapback (R$ 89,90)</li>
-                </ul>
-              </div>
-              <div class="pedido-actions">
-                <button class="btn-action processar"><i class="fas fa-cog"></i> Processar</button>
-                <button class="btn-action cancelar"><i class="fas fa-times"></i> Cancelar</button>
-                <button class="btn-action detalhes"><i class="fas fa-eye"></i> Detalhes</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="pedido-card">
-            <div class="pedido-header">
-              <span class="pedido-id">#ORD-2023-002</span>
-              <span class="pedido-status shipped">Enviado</span>
-              <span class="pedido-date">10/05/2023</span>
-              <span class="pedido-total">R$ 299,90</span>
-            </div>
-            <div class="pedido-details">
-              <div class="pedido-cliente">
-                <p><strong>Cliente:</strong> Maria Souza</p>
-                <p><strong>E-mail:</strong> maria@exemplo.com</p>
-              </div>
-              <div class="pedido-produtos">
-                <p><strong>Produtos:</strong></p>
-                <ul>
-                  <li>Jaqueta Destroyed (R$ 299,90) - Tamanho: G</li>
-                </ul>
-              </div>
-              <div class="pedido-actions">
-                <button class="btn-action rastreio"><i class="fas fa-truck"></i> Atualizar Rastreio</button>
-                <button class="btn-action concluir"><i class="fas fa-check"></i> Marcar como Entregue</button>
-              </div>
-            </div>
-          </div>
+        <?php if ($endereco): ?>
+        <div class="pedido-endereco">
+          <p><strong>Endereço:</strong> 
+            <?= htmlspecialchars($endereco['rua']) ?>, <?= htmlspecialchars($endereco['numero']) ?>
+            <?= $endereco['complemento'] ? ' - ' . htmlspecialchars($endereco['complemento']) : '' ?><br>
+            <?= htmlspecialchars($endereco['bairro']) ?>, <?= htmlspecialchars($endereco['cidade']) ?><br>
+            CEP: <?= htmlspecialchars($endereco['cep']) ?>
+          </p>
         </div>
-      </section>
+        <?php endif; ?>
+
+        <div class="pedido-produtos">
+          <p><strong>Produtos:</strong></p>
+          <ul>
+            <?php foreach ($produtos as $prod): ?>
+              <li>
+                <?= htmlspecialchars($prod['nomeItem']) ?> (R$ <?= number_format($prod['valorUnitario'], 2, ',', '.') ?>)
+                <?= $prod['tamanho'] !== 'Único' ? " - Tamanho: " . htmlspecialchars($prod['tamanho']) : "" ?>
+                x <?= $prod['quantidade'] ?>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+
+        <div class="pedido-actions">
+          <?php if ($pedido['statusCompra'] === 'Processando pagamento'): ?>
+            <button class="btn-action btn-status" data-id="<?= $pedido['idCompra'] ?>" data-status="Pago">
+              <i class="fas fa-cog"></i> Processar
+            </button>
+            <button class="btn-action btn-status" data-id="<?= $pedido['idCompra'] ?>" data-status="Cancelado">
+              <i class="fas fa-times"></i> Cancelar
+            </button>
+          <?php elseif ($pedido['statusCompra'] === 'Pago'): ?>
+            <button class="btn-action btn-status" data-id="<?= $pedido['idCompra'] ?>" data-status="Preparando pra enviar">
+              <i class="fas fa-box-open"></i> Preparar para Envio
+            </button>
+          <?php elseif ($pedido['statusCompra'] === 'Preparando pra enviar'): ?>
+            <button class="btn-action btn-status" data-id="<?= $pedido['idCompra'] ?>" data-status="Enviado">
+              <i class="fas fa-truck"></i> Marcar como Enviado
+            </button>
+          <?php elseif ($pedido['statusCompra'] === 'Enviado'): ?>
+            <button class="btn-action btn-status" data-id="<?= $pedido['idCompra'] ?>" data-status="Recebido">
+              <i class="fas fa-check"></i> Marcar como Recebido
+            </button>
+          <?php elseif ($pedido['statusCompra'] === 'Recebido'): ?>
+            <span class="status-info">Pedido concluído.</span>
+          <?php elseif ($pedido['statusCompra'] === 'Cancelado'): ?>
+            <span class="status-info">Pedido cancelado.</span>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+  <?php endforeach; ?>
+  </div>              
+</section>
 
       <!-- Seção Conteúdo do Site -->
       <section class="admin-section" id="conteudo-section">
@@ -302,7 +373,7 @@ $page_title = "Painel Administrativo";
     <h3>Imagens Ativas no Site</h3>
     <div class="items-grid" id="carrossel-grid">
       <?php
-      require_once 'conexao.php';
+
       // Buscar apenas imagens ativas ou principais
       $imagens = $pdo->query("SELECT * FROM tb_imagem WHERE statusImagem IN ('ativa', 'principal') ORDER BY statusImagem DESC");
 
@@ -711,6 +782,7 @@ $page_title = "Painel Administrativo";
   <script src="js/produto.js"></script>
   <script src="js/categorias.js"></script>
   <script src="js/colecoes.js"></script>
+  <script src="js/processarPedidos.js"></script>
   <script src="js/admin-novidades.js" type="module"></script>
   <script>
     const precoInput = document.getElementById('produto-preco');
@@ -730,6 +802,7 @@ $page_title = "Painel Administrativo";
       }
     });
   </script>
+  
 
 </body>
 

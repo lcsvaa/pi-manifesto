@@ -54,7 +54,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Máscara para campos de formulário
+// Máscaras para campos de formulário
 document.getElementById('cep').addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, '');
     value = value.replace(/^(\d{5})(\d)/, '$1-$2');
@@ -80,14 +80,28 @@ document.getElementById('card-expiry').addEventListener('input', function(e) {
     e.target.value = value;
 });
 
+let possuiEndereco = false; 
 
 window.addEventListener('DOMContentLoaded', () => {
-  fetch('getEnderecoUsuario.php')
+  fetch('buscar_enderecos_usuario.php')
     .then(res => res.json())
     .then(data => {
-      if (data.status === 'ok') {
-        const d = data.dados;
-        document.getElementById('nome').value = d.nome || '';
+      const formEndereco = document.getElementById('novo-endereco-form');
+      const botaoAlterarEndereco = document.querySelector('form[action="profile.php"]');
+
+      // Parágrafo de aviso
+      let avisoEndereco = document.getElementById('aviso-endereco');
+      if (!avisoEndereco) {
+        avisoEndereco = document.createElement('p');
+        avisoEndereco.id = 'aviso-endereco';
+        avisoEndereco.style.color = '#e91e63';
+        avisoEndereco.style.margin = '10px 0';
+        botaoAlterarEndereco.parentNode.insertBefore(avisoEndereco, botaoAlterarEndereco);
+      }
+
+      if (data.status === 'ok' && data.enderecos.length > 0) {
+        const d = data.enderecos[0];
+        document.getElementById('nome').value = d.nomeUser || '';
         document.getElementById('email').value = d.email || '';
         document.getElementById('telefone').value = d.telefone || '';
         document.getElementById('cep').value = d.cep || '';
@@ -96,11 +110,14 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('complemento').value = d.complemento || '';
         document.getElementById('bairro').value = d.bairro || '';
         document.getElementById('cidade').value = d.cidade || '';
-        document.getElementById('estado').value = d.estado || '';
-      } else if (data.status === 'vazio') {
-        console.log('Usuário logado, mas sem endereço cadastrado.');
+
+        formEndereco.style.display = 'block';
+        avisoEndereco.textContent = '';
+        possuiEndereco = true; // 
       } else {
-        console.warn(data.msg);
+        formEndereco.style.display = 'none';
+        avisoEndereco.textContent = 'Você não tem endereços cadastrados. Por favor, cadastre no perfil.';
+        possuiEndereco = false; 
       }
     })
     .catch(err => {
@@ -108,77 +125,44 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('enderecos-container');
-    const formNovo = document.getElementById('delivery-form');
-    const btnNovo = document.getElementById('btn-novo-endereco');
-
-    fetch('buscar_enderecos_usuario.php')
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'ok' && data.enderecos.length > 0) {
-                data.enderecos.forEach((end, index) => {
-                    const label = document.createElement('label');
-                    label.className = 'shipping-option';
-
-                    label.innerHTML = `
-                        <input type="radio" name="enderecoSelecionado" value="${end.idEndereco}" ${index === 0 ? 'checked' : ''}>
-                        <div class="shipping-info">
-                            <span class="shipping-name">${end.nome}</span>
-                            <span class="shipping-time">${end.endereco}, ${end.numero} - ${end.bairro}</span>
-                            <span class="shipping-price">${end.cidade} - ${end.estado}, ${end.cep}</span>
-                        </div>
-                    `;
-                    container.appendChild(label);
-                });
-            } else {
-                // Não tem endereço → exibe formulário
-                formNovo.style.display = 'block';
-                btnNovo.style.display = 'none';
-            }
-        });
-
-    btnNovo.addEventListener('click', () => {
-        formNovo.style.display = 'block';
-        btnNovo.style.display = 'none';
-    });
-});
-
 document.getElementById('confirm-order').addEventListener('click', async function(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-        const res = await fetch('verificaLogin.php');
-        const data = await res.json();
+  if (!possuiEndereco) {
+    alert('Você precisa cadastrar um endereço antes de finalizar a compra.');
+    return;
+  }
 
-        if (!data.logado) {
-            alert('Você precisa estar logado para finalizar a compra.');
-            window.location.href = 'login.php'; // ou login.html
-            return;
-        }
+  const formaPagamento = document.querySelector('.payment-tab.active')?.dataset.tab || 'indefinido';
+  const shippingInput = document.querySelector('input[name="shipping"]:checked');
+  const shipping = shippingInput ? shippingInput.value : 'standard';
 
-        // Se estiver logado, validar formulário normalmente
-        const form = document.getElementById('delivery-form');
-        const requiredFields = form.querySelectorAll('[required]');
-        let isValid = true;
+  const dadosPedido = {
+    formaPagamento,
+    shipping
+  };
 
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.style.borderColor = '#e91e63';
-                isValid = false;
-            } else {
-                field.style.borderColor = '#333';
-            }
-        });
+  try {
+    const res = await fetch('finalizarCompra.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dadosPedido)
+    });
 
-        if (isValid) {
-            alert('Pedido confirmado com sucesso! Você será redirecionado para a página de confirmação.');
-            // window.location.href = 'order-confirmation.html';
-        } else {
-            alert('Por favor, preencha todos os campos obrigatórios.');
-        }
+    const data = await res.json();
 
-    } catch (error) {
-        alert('Erro ao verificar login. Tente novamente.');
+    if (data.status === 'ok') {
+      alert(data.msg);
+      // window.location.href = 'confirmacao.html';
+    } else {
+      alert('Erro: ' + data.msg);
+      if (data.error) console.error('Erro detalhado:', data.error);
     }
+
+  } catch (error) {
+    alert('Erro ao enviar pedido. Tente novamente.');
+    console.error(error);
+  }
 });

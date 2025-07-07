@@ -230,7 +230,7 @@ function updateCartTotal() {
     quantidadeTotal += qtd;
   });
 
-  const frete = quantidadeTotal > 0 ? 18.90 : 0;
+  const frete = quantidadeTotal > 0 ? 15.90 : 0;
 
   let desconto = 0;
   if (descontoTipo === 'porcentagem') {

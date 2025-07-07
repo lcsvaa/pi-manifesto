@@ -118,8 +118,7 @@ CREATE TABLE tb_itemCompra (
   valorUnitario DECIMAL(10, 2) NOT NULL,
    PRIMARY KEY (idCompra, idProduto, tamanho),
    CONSTRAINT fk_item_compra FOREIGN KEY (idCompra) REFERENCES tb_compra (id),
-   CONSTRAINT fk_item_produto FOREIGN KEY (idProduto) REFERENCES tb_produto (id),
-   CONSTRAINT fk_item_produto_tamanho FOREIGN KEY (idProduto, tamanho) REFERENCES tb_produto_tamanho (idProduto, tamanho)
+   CONSTRAINT fk_item_produto FOREIGN KEY (idProduto) REFERENCES tb_produto (id)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
  
  

@@ -2,30 +2,33 @@
 require_once "conexao.php";
 session_start();
 
+$isLoggedIn = isset($_SESSION['usuario']);
+
 $itensCarrinho = $_SESSION['carrinho'] ?? [];
 $cupomAtivo = $_SESSION['cupom'] ?? null;
 
 $subtotal = 0;
 foreach ($itensCarrinho as $item) {
-    $subtotal += floatval($item['preco']) * intval($item['qtd']);
+    if (is_array($item) && isset($item['preco'], $item['qtd'])) {
+        $subtotal += floatval($item['preco']) * intval($item['qtd']);
+    }
 }
 
 $desconto = 0;
-if (isset($_SESSION['cupom'])) {
-    if ($_SESSION['cupom']['tipo'] === 'porcentagem') {
-        $desconto = ($subtotal * $_SESSION['cupom']['valor']) / 100;
-    } elseif ($_SESSION['cupom']['tipo'] === 'valor') {
-        $desconto = $_SESSION['cupom']['valor'];
+if ($cupomAtivo && isset($cupomAtivo['tipo'], $cupomAtivo['valor'])) {
+    if ($cupomAtivo['tipo'] === 'porcentagem') {
+        $desconto = ($subtotal * $cupomAtivo['valor']) / 100;
+    } elseif ($cupomAtivo['tipo'] === 'valor') {
+        $desconto = $cupomAtivo['valor'];
     }
 }
 
 $frete = 0;
 $total = 0;
 if (!empty($itensCarrinho)) {
-    $frete = 18.90;
+    $frete = 15.90;
     $total = $subtotal - $desconto + $frete;
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -36,7 +39,7 @@ if (!empty($itensCarrinho)) {
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/notificacao.css" />
+    <link rel="stylesheet" href="css/notificacation.css"/>
     <link rel="stylesheet" href="css/cart.css">
     <link rel="icon" href="img/icone.png" type="image/png">
 </head>
@@ -60,8 +63,15 @@ if (!empty($itensCarrinho)) {
             </div>
         <?php else: ?>
             <?php foreach ($itensCarrinho as $key => $item):
-                // Verificar estoque máximo para o item atual
-                if (isset($item['tamanho']) && $item['tamanho'] !== 'Único') {
+
+                if (
+                    !is_array($item) ||
+                    !isset($item['id'], $item['nome'], $item['preco'], $item['qtd'], $item['tamanho'])
+                ) {
+                    continue;
+                }
+
+                if ($item['tamanho'] !== 'Único') {
                     $stmt = $pdo->prepare("SELECT estoque FROM tb_produto_tamanho WHERE idProduto = :idProduto AND tamanho = :tamanho");
                     $stmt->execute(['idProduto' => $item['id'], 'tamanho' => $item['tamanho']]);
                     $estoqueMax = (int) $stmt->fetchColumn();
@@ -71,7 +81,6 @@ if (!empty($itensCarrinho)) {
                     $estoqueMax = (int) $stmt->fetchColumn();
                 }
 
-                // Garante que estoque mínimo seja 1 para evitar problemas
                 if ($estoqueMax < 1) {
                     $estoqueMax = 1;
                 }
@@ -141,14 +150,20 @@ if (!empty($itensCarrinho)) {
             </button>
         </div>
 
-        <button class="checkout-btn">Finalizar Compra</button>
+            <?php if (isset($_SESSION['user_id'])): ?>
+            <form action="checkout.php" method="get">
+                <button type="submit" class="checkout-btn">Finalizar Compra</button>
+            </form>
+        <?php else: ?>
+            <button class="checkout-btn disabled" onclick="alert('Você precisa estar logado para finalizar a compra.')">Finalizar Compra</button>
+            <?php endif; ?>
     </div>
 </div>
 
 <?php include_once "footer.php" ?>
 <script>
-  let descontoTipo = <?= isset($cupomAtivo) ? json_encode($cupomAtivo['tipo']) : 'null' ?>;
-  let descontoValor = <?= isset($cupomAtivo) ? json_encode($cupomAtivo['valor']) : '0' ?>;
+  let descontoTipo = <?= isset($cupomAtivo['tipo']) ? json_encode($cupomAtivo['tipo']) : 'null' ?>;
+  let descontoValor = <?= isset($cupomAtivo['valor']) ? json_encode($cupomAtivo['valor']) : '0' ?>;
 </script>
 <script src="js/cart.js"></script>
 </body>
